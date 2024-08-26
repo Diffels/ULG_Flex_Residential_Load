@@ -9,7 +9,7 @@ August 2024
 import numpy as np
 import random 
 import calendar
-from initialise import yearly_pattern 
+from ramp_mobility.initialise import yearly_pattern 
 
 
 def EV_stoch_cons(User_list, full_year, year=2024, country='BE', day_type='weekday', disp=True):

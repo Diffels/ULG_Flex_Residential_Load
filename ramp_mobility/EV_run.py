@@ -8,10 +8,9 @@ August 2024
 # Import required modules
 import pandas as pd
 import matplotlib.pyplot as plt
-
-from EV_stoch_cons import EV_stoch_cons
-from EV_occ_daily_profile import EV_occ_daily_profile
-from config_init_ import config_init_
+from ramp_mobility.EV_stoch_cons import EV_stoch_cons
+from ramp_mobility.EV_occ_daily_profile import EV_occ_daily_profile
+from ramp_mobility.config_init_ import config_init_
 
 '''
 Code based on ramp-mobility library that compute stochastic Electrical 

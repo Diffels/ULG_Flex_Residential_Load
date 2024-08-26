@@ -66,9 +66,9 @@ def EV_occ_daily_profile(EV_cons, full_occupancy, SOC_init=0.9, disp=True):
     SOC_beginning = SOC_init
     
     for iteration in range(len(EV_cons)):
-        
+        print(full_occupancy)
         occupancy = full_occupancy[iteration*minPerDay:minPerDay*(iteration+1)]
-        
+        print(occupancy)
         SOC_profile = np.full(minPerDay, SOC_beginning) # Time Series of SOC filled with init value
         charging_profile = np.zeros(minPerDay) # Binary Time Series describing when EV is plugged.
         EV_refilled=np.zeros(minPerDay) # Time Series recording if a battery re-filled occurs during a departure.

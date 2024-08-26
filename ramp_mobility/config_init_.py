@@ -9,10 +9,11 @@ August 2024
 """
 
 # Import required libraries
-from core import User
+from ramp_mobility.core import User
 import numpy as np
 import pandas as pd
 import copy
+import os
 
 
 '''
@@ -84,7 +85,8 @@ def config_init_(statut, car, day_period, func, tot_users, User_list, full_year,
     
     # Files with the inputs to be loaded 
     
-    inputfolder = r"../database/"
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    inputfolder = os.path.join(script_dir, "..", "database")
     
     # Selection of the equivalent country from the dictionary defined above
     if country in set(country_dict.values()):
@@ -93,37 +95,37 @@ def config_init_(statut, car, day_period, func, tot_users, User_list, full_year,
         country_equivalent = country_dict[country]
     
     #Composition of the population by percentage share
-    pop_file =  inputfolder + "pop_share.csv" 
-    pop_data = pd.read_csv(pop_file, header = 0, index_col = 0)
+    pop_file = os.path.join(inputfolder, "pop_share.csv") 
+    pop_data = pd.read_csv(pop_file, header=0, index_col=0)
     
-    #Share of the type of vehicles in the country
-    vehicle_file =  inputfolder + "vehicle_share.csv" 
-    vehicle_data = pd.read_csv(vehicle_file, header = 0, index_col = 0)
-    
+    # Share of the type of vehicles in the country
+    vehicle_file = os.path.join(inputfolder, "vehicle_share.csv")
+    vehicle_data = pd.read_csv(vehicle_file, header=0, index_col=0)
+
     # Total daily distance [km]
-    d_tot_file =  inputfolder + "d_tot.csv" 
-    d_tot_data = pd.read_csv(d_tot_file, header = 0, index_col = 0)
-    
+    d_tot_file = os.path.join(inputfolder, "d_tot.csv")
+    d_tot_data = pd.read_csv(d_tot_file, header=0, index_col=0)
+
     # Distance by trip [km]
-    d_min_file =  inputfolder + "d_min.csv" 
-    d_min_data = pd.read_csv(d_min_file, header = 0, index_col = [0,1])
-    
+    d_min_file = os.path.join(inputfolder, "d_min.csv")
+    d_min_data = pd.read_csv(d_min_file, header=0, index_col=[0, 1])
+
     # Functioning time by trip [min]
-    t_func_file =  inputfolder + "t_func.csv" 
-    t_func_data = pd.read_csv(t_func_file, header = 0, index_col = [0,1])
-    
-    # Functioning windows 
-    window_file =  inputfolder + "windows.csv" 
-    window_data = pd.read_csv(window_file, header = [0,1], index_col = [0,1,2])
-    window_data = window_data*60 # hourly->min
+    t_func_file = os.path.join(inputfolder, "t_func.csv")
+    t_func_data = pd.read_csv(t_func_file, header=0, index_col=[0, 1])
+
+    # Functioning windows
+    window_file = os.path.join(inputfolder, "windows.csv")
+    window_data = pd.read_csv(window_file, header=[0, 1], index_col=[0, 1, 2])
+    window_data = window_data * 60  # Convert hourly to minutes
     window_data = window_data.astype(int)
-    
-    #Trips distribution by time 
+
+    # Trips distribution by time
     trips = {}
-    for day in ['weekday', 'saturday', 'sunday']:    
-        file =  inputfolder + f"trips_by_time_{day}.csv" 
-        trips[day] = pd.read_csv(file, header = 0)
-        trips[day] = trips[day][country_equivalent]/100
+    for day in ['weekday', 'saturday', 'sunday']:
+        file = os.path.join(inputfolder, f"trips_by_time_{day}.csv")
+        trips[day] = pd.read_csv(file, header=0)
+        trips[day] = trips[day][country_equivalent] / 100
     
     
     #Composition of the population by percentage share

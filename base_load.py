@@ -1,5 +1,4 @@
-import os
-import sys
+import sys,os
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -13,7 +12,8 @@ from ramp_mobility.EV_run import EV_run
 if __name__ == '__main__':
     #Simulation for 1 dwelling
     #Reading the input file
-    out,config_full = read_config("Config.xlsx")
+    file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Config.xlsx")
+    out,config_full = read_config(file_path)
     nb_days = out['sim']['ndays']
     year = out['sim']['year']
     NB_Scenarios = out['sim']['N']
@@ -63,8 +63,8 @@ if __name__ == '__main__':
                         'countries': ['BE'],  # Associated country
                         'year': 2025,         # Associated year
                         'plot_frame': 1440*5, # Window for plotting the profile. Set to 0 to avoid plot.
-                        'statut': 'student',  # Working Statut: ['working', 'student', 'inactive']
-                        'car': 'medium',      # EV size:  ['large', 'medium', 'small']
+                        'statut': EV_statut,  # Working Statut: ['working', 'student', 'inactive']
+                        'car': EV_size,      # EV size:  ['large', 'medium', 'small']
                         'day_type': 'weekday',# Day type: ['weekday', 'saturday', 'sunday'] for single day sim. Holiday is considered as sunday.
                         'day_period': 'main', # Period of the day: ['main', 'free time']
                         'func': 'business',   # Car type: ['business', 'personal'] corresp. to column in t_func.csv
