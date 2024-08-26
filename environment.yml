@@ -1,0 +1,13 @@
+name: ramp_mobility
+
+dependencies:
+  - python=3.7
+  - spyder
+  - numpy>=1.10
+  - matplotlib>=1.5.1
+  - pandas>= 0.24.0
+  - pip
+  - pip:
+    - convertdate
+    - holidays
+ 
