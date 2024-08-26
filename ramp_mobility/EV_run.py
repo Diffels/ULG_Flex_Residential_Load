@@ -67,5 +67,6 @@ def EV_run(occupancy, config):
             plt.legend()
             plt.grid(True)
             #plt.savefig("SOC_plot.svg")
-            plt.show()  
+            plt.show()
+    return df_load_profile  
     

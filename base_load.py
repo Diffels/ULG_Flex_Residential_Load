@@ -7,18 +7,16 @@ from Household_mod import Household_mod
 from plots import make_demand_plot
 from read_config import read_config
 from Flexibility import flexibility_window, from_10_to_1min_basis
-
+from ramp_mobility.EV_run import EV_run
 
 
 if __name__ == '__main__':
     #Simulation for 1 dwelling
     #Reading the input file
-    out,config_full = read_config("C:\Master 3\Job été\MRL-Wallonia\Config.xlsx")
+    out,config_full = read_config("Config.xlsx")
     nb_days = out['sim']['ndays']
     year = out['sim']['year']
     NB_Scenarios = out['sim']['N']
-
-    EV_profile = pd.read_excel("C:\Master 3\Job été\MRL-Wallonia\EV_load_profile.xlsx")
 
     dwelling_compo = []
     for i in range(out['dwelling']['nb_compo']):
@@ -58,7 +56,23 @@ if __name__ == '__main__':
             flex_window = flexibility_window(df[appliances], family.occ_m, flex_mode, flexibility_rate= flex_rate)
         
         if EV_presence == 'Yes':
-            print("Hello Didou")#Pour récup l'occupation suffit de mettre family.occ_m
+            '''
+            TO MODIFY, NEED TO ADD INPUTS IN EXCEL FILE
+            '''
+            config = {  'full_year': True,    # True: Sim for whole year; False: Sim for one day.    
+                        'countries': ['BE'],  # Associated country
+                        'year': 2025,         # Associated year
+                        'plot_frame': 1440*5, # Window for plotting the profile. Set to 0 to avoid plot.
+                        'statut': 'student',  # Working Statut: ['working', 'student', 'inactive']
+                        'car': 'medium',      # EV size:  ['large', 'medium', 'small']
+                        'day_type': 'weekday',# Day type: ['weekday', 'saturday', 'sunday'] for single day sim. Holiday is considered as sunday.
+                        'day_period': 'main', # Period of the day: ['main', 'free time']
+                        'func': 'business',   # Car type: ['business', 'personal'] corresp. to column in t_func.csv
+                        'tot_users': 1,       # Number of user to define. For this model=1.
+                        'User_list': [],      # List containing all users.
+                        'file_path': 'occupancy_profile_full_year.xlsx' # Data file containing occupancy profile.
+                    }
+            EV_profile=EV_run(family.occ_m,config)
 
         P[i,:] = family.P
 
@@ -85,4 +99,4 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.show()"""
 
-    #make_demand_plot(df[:100000].index, df[:100000], title=f"Average Consumption for {NB_Scenarios} scenarios")
+    make_demand_plot(df[:100000].index, df[:100000], title=f"Average Consumption for {NB_Scenarios} scenarios")
