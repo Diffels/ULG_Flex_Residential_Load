@@ -135,12 +135,12 @@ class Household_mod(Household):
         self.taps = tappings()
         self.clustersList = clusters(self.members)
         # and return
-        print('Household-object created and parameterized.')
-        print(' - Employment types are %s' % str(self.members))
+        # print('Household-object created and parameterized.')
+        # print(' - Employment types are %s' % str(self.members))
         summary = [] #loop dics and remove doubles
         for member in self.clustersList:
             summary += member.values()
-        print(' - Set of clusters is %s' % str(list(set(summary))))
+        # print(' - Set of clusters is %s' % str(list(set(summary))))
 
         return None
       
@@ -200,7 +200,7 @@ class Household_mod(Household):
                 sh_settings.update({room:shnon})
         # and store
         self.sh_settings = sh_settings
-        print(' - Average comfort setting is %s Celsius' % str(round(np.average(sh_settings['dayzone']),2)))
+        # print(' - Average comfort setting is %s Celsius' % str(round(np.average(sh_settings['dayzone']),2)))
         
         self.variables.update({'sh_day': 'Space heating set-point temperature for day-zone in degrees Celsius.',
                                 'sh_bath': 'Space heating set-point temperature for bathroom in degrees Celsius.',
@@ -254,7 +254,7 @@ class Household_mod(Household):
             # output ##########################################################
             # only the power load is returned
             load = int(np.sum(result['P'])/60/1000)
-            print(' - Receptacle load is %s kWh' % str(load))
+            # print(' - Receptacle load is %s kWh' % str(load))
 
             return None
 
@@ -327,7 +327,7 @@ class Household_mod(Household):
             self.r_lighting = result
 
             load = int(np.sum(result['P'])/60/1000)
-            print(' - Lighting load is %s kWh' % str(load))
+            # print(' - Lighting load is %s kWh' % str(load))
             
             return None
 

@@ -66,6 +66,7 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
     list_EV_refilled=np.zeros(len(EV_cons)*minPerDay)
     
     SOC_beginning = SOC_init
+    SOC_last=SOC_init
 
     for iteration in range(len(EV_cons)):
         occupancy = full_occupancy[iteration*minPerDay:minPerDay*(iteration+1)]

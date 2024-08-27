@@ -9,6 +9,7 @@ August 2024
 import os
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from Household_mod import Household_mod
 from plots import make_demand_plot
 from read_config import read_config
@@ -51,10 +52,7 @@ def get_profiles():
     Outputs
         -
     '''
-    pass
-
-if __name__ == '__main__':
-    # Reading the input file in current directory
+        # Reading the input file in current directory
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Config.xlsx")
     out,config_full = read_config(file_path)
     # Appliances instances definition
@@ -82,7 +80,7 @@ if __name__ == '__main__':
                 'EV_presence': out['EV']['present'],        # If a EV is present or not.
                 'EV_size': out['EV']['size'],               # EV size:  ['large', 'medium', 'small']
                 'EV_statut': out['EV']['statut'],           # Working Statut: ['working', 'student', 'inactive']
-                'EV_disp': out['EV']['disp'],               # Flag for displaying some useful information regarding EV profile simulation.
+                'EV_disp': False, # out['EV']['disp'],      #TODO Flag for displaying some useful information regarding EV profile simulation.
                 'EV_nb_drivers': out['EV']['nb_drivers'],   # Number of user to define. For this model=1.
                 'User_list': [],                            # List containing all users.
             }
@@ -91,9 +89,9 @@ if __name__ == '__main__':
     nminutes = config['nb_days'] * 1440 + 1
     P = np.zeros((config['nb_Scenarios'], nminutes))
     for i in range(config['nb_Scenarios']):
-        family = Household_mod(f"Scenario {i}",members = dwelling_compo, selected_appliances = appliances)
+        family = Household_mod(f"Scenario {i}",members = dwelling_compo, selected_appliances = appliances) # print put in com 
         #family = Household_mod(f"Scenario {i}")
-        family.simulate(year = config['year'], ndays = config['nb_days'])
+        family.simulate(year = config['year'], ndays = config['nb_days']) # print in com
         if i == 0:
             """occupancy = dict()
             for j in range(len(dwelling_compo)):
@@ -126,14 +124,13 @@ if __name__ == '__main__':
     average_total_elec = total_elec/config['nb_Scenarios']
     df = df/config['nb_Scenarios']
 
-    # May we delete this? 
-    """print(' - Total load is %s kWh' % str(average_total_elec.sum()/60/1000))
-    print("total Wash machine elec consumptoon is %s" % str(df['WashingMachine'].sum()/60/1000))
-    print("total DishWasher elec consumptoonis %s" % str(df['DishWasher'].sum()/60/1000))
-    print("total WhasherDryer elec consumptoon is %s"% str(df['WasherDryer'].sum()/60/1000))
-    print("total TrumbleDryer elec consumptoon is %s"% str(df['TumbleDryer'].sum()/60/1000))"""
-    """average_total_elec = total_elec/NB_Scenarios
-    df = df/NB_Scenarios
+    #print(f'Total load is {(average_total_elec.sum()/60/1000)} kWh\n')
+    # print("total Wash machine elec consumptoon is %s" % str(df['WashingMachine'].sum()/60/1000))
+    # print("total DishWasher elec consumptoonis %s" % str(df['DishWasher'].sum()/60/1000))
+    # print("total WhasherDryer elec consumptoon is %s"% str(df['WasherDryer'].sum()/60/1000))
+    # print("total TrumbleDryer elec consumptoon is %s"% str(df['TumbleDryer'].sum()/60/1000))
+    '''average_total_elec = total_elec/config['nb_Scenarios']
+    df = df/config['nb_Scenarios']
     power = pd.DataFrame({"Power" : average_total_elec})
     power.plot()
     df.to_excel("mean_load_profile_100.xlsx")
@@ -142,6 +139,10 @@ if __name__ == '__main__':
     plt.ylabel("Load [W]")
     plt.legend()
     plt.grid(True)
-    plt.show()"""
+    plt.show()'''
 
-    make_demand_plot(df[:100000].index, df[:100000], title=f"Average Consumption for {config['nb_Scenarios']} scenarios")
+    # make_demand_plot(df[:100000].index, df[:100000], title=f"Average Consumption for {config['nb_Scenarios']} scenarios")
+    return average_total_elec.sum()/60/1000
+
+if __name__ == '__main__':
+    pass

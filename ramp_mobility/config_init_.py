@@ -21,16 +21,17 @@ File that defines the function used to convert the associated database and param
 python variables for: Belgium. The User and Appliance (EV) are also created according to given arguments.
 '''
 
-def config_init_(statut: str, car: str, day_period: str, func: str, tot_users: int, User_list: list, nb_days: int, year=2016)->list:
+def config_init_(statut: str, car: str, day_period: str, func: str, tot_users: int, User_list: list, nb_days: int, year=2016, disp=True)->list:
     
     # Print configuration in the console.
-    print("------ EV Configuration ------")
-    print("One user was implemented, with the following parameters:")
-    print("- Working profile:", statut)
-    print("- Car size:", car)
-    print("- Day period:", day_period)
-    print("- Function:", func)
-    print(f"For a {nb_days}-day(s) simulation.\n")
+    if disp:
+        print("------ EV Configuration ------")
+        print("One user was implemented, with the following parameters:")
+        print("- Working profile:", statut)
+        print("- Car size:", car)
+        print("- Day period:", day_period)
+        print("- Function:", func)
+        print(f"For a {nb_days}-day(s) simulation.\n")
             
     #Define Country
     country = 'BE'

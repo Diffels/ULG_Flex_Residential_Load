@@ -142,12 +142,12 @@ class Household(object):
         self.taps = tappings()
         self.clustersList = clusters(self.members)
         # and return
-        print('Household-object created and parameterized.')
-        print(' - Employment types are %s' % str(self.members))
+        #print('Household-object created and parameterized.')
+        #print(' - Employment types are %s' % str(self.members))
         summary = [] #loop dics and remove doubles
         for member in self.clustersList:
             summary += member.values()
-        print(' - Set of clusters is %s' % str(list(set(summary))))
+        #print(' - Set of clusters is %s' % str(list(set(summary))))
 
         return None
 
@@ -338,8 +338,8 @@ class Household(object):
         # and print statements
         presence = [to for to in self.occ_m[0] if to < 2]
         hours = len(presence)/6.
-        print(' - Total presence time is {0:.1f} out of {1} hours'.format(hours, self.nday*24))
-        print('\tbeing {:.1f} percent)'.format(hours*100/(self.nday*24)))
+        #print(' - Total presence time is {0:.1f} out of {1} hours'.format(hours, self.nday*24))
+        #print('\tbeing {:.1f} percent)'.format(hours*100/(self.nday*24)))
         return None
 
     def __plugload__(self):
@@ -387,7 +387,7 @@ class Household(object):
             # output ##########################################################
             # only the power load is returned
             load = int(np.sum(result['P'])/60/1000)
-            print(' - Receptacle load is %s kWh' % str(load))
+            #print(' - Receptacle load is %s kWh' % str(load))
 
             return None
 
@@ -460,7 +460,7 @@ class Household(object):
             self.r_lighting = result
 
             load = int(np.sum(result['P'])/60/1000)
-            print(' - Lighting load is %s kWh' % str(load))
+            #print(' - Lighting load is %s kWh' % str(load))
             
             return None
 
@@ -502,7 +502,7 @@ class Household(object):
 
         load = np.sum(result['mDHW'])
         loadpppd = int(load/self.nday/len(self.clustersList))
-        print(' - Draw-off is %s l/p.day' % str(loadpppd))
+        #print(' - Draw-off is %s l/p.day' % str(loadpppd))
  
         return None
 
@@ -562,7 +562,7 @@ class Household(object):
                 sh_settings.update({room:shnon})
         # and store
         self.sh_settings = sh_settings
-        print(' - Average comfort setting is %s Celsius' % str(round(np.average(sh_settings['dayzone']),2)))
+        #print(' - Average comfort setting is %s Celsius' % str(round(np.average(sh_settings['dayzone']),2)))
         
         self.variables.update({'sh_day': 'Space heating set-point temperature for day-zone in degrees Celsius.',
                                 'sh_bath': 'Space heating set-point temperature for bathroom in degrees Celsius.',

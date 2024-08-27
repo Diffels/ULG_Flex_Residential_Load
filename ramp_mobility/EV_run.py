@@ -47,7 +47,7 @@ def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict)-> pd.Da
     for c in countries:
         if c != 'BE': raise ValueError("Model is currently only working for Belgium.")
         
-        User_list = config_init_(statut, car, day_period, func, tot_users, User_list, nb_days, year=year)
+        User_list = config_init_(statut, car, day_period, func, tot_users, User_list, nb_days, year=year, disp=EV_disp)
     
         EV_cons = EV_stoch_cons(User_list, nb_days, year=year, country=c, disp=EV_disp, start_day=start_day)
         
