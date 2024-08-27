@@ -8,6 +8,8 @@ August 2024
 # Importing required modules
 import numpy as np
 import random 
+from typing import Any
+
 
 def prob_charge_notHome_fun(E_journey, E_leaving):
     '''
@@ -29,13 +31,13 @@ def prob_charge_notHome_fun(E_journey, E_leaving):
     return P
     
 
-def EV_occ_daily_profile(EV_cons, full_occupancy, SOC_init=0.9, disp=True):
+def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occupancy: np.ndarray[Any, np.dtype[np.bool_]], SOC_init=0.9, disp=True):
     '''
     Function returning an array containing daily profile which splits the stochastic
     EV capacities given by EV_stochastic.py according to a occupancy profile input.
     Inputs:
-        - EV_cons (float np.array): Stochastic EV daily consumption(s) to split according to occupancy.
-        - Occupancy (boolean np.array): Occupancy profile. (1: Home; 0: Not Home)
+        - EV_cons (float np.ndarray): Stochastic EV daily consumption(s) to split according to occupancy.
+        - full_occupancy (boolean np.ndarray): Occupancy profile. (1: Home; 0: Not Home)
         - SOC_init (float [0.0; 1.0]): Initial State Of Charge of the EV battery.
         - disp (boolean): To get information displayed on the console.
     Outputs:
@@ -64,11 +66,9 @@ def EV_occ_daily_profile(EV_cons, full_occupancy, SOC_init=0.9, disp=True):
     list_EV_refilled=np.zeros(len(EV_cons)*minPerDay)
     
     SOC_beginning = SOC_init
-    
+
     for iteration in range(len(EV_cons)):
-        print(full_occupancy)
         occupancy = full_occupancy[iteration*minPerDay:minPerDay*(iteration+1)]
-        print(occupancy)
         SOC_profile = np.full(minPerDay, SOC_beginning) # Time Series of SOC filled with init value
         charging_profile = np.zeros(minPerDay) # Binary Time Series describing when EV is plugged.
         EV_refilled=np.zeros(minPerDay) # Time Series recording if a battery re-filled occurs during a departure.

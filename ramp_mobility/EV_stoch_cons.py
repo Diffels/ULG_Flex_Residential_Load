@@ -12,17 +12,18 @@ import calendar
 from ramp_mobility.initialise import yearly_pattern 
 
 
-def EV_stoch_cons(User_list, full_year, year=2024, country='BE', day_type='weekday', disp=True):
+def EV_stoch_cons(User_list: list, nb_days: int, year=2024, country='BE', day_type='weekday', disp=True, start_day=0)->list:
     '''
     Function that computes stochastic data (EV daily consumption, daily time and distance) from config_init_.py 
     corresponding to Belgium case. Other files (for other countries) should be properly modified. 
     Inputs:
         - User_list (list of Class User): List of User to simulate, in the default case, there is only 1.
-        - full_year (boolean): Simulate over one year or a single day.
+        - nb_days (int): Number of days to simulate.
         - disp (boolean): Display information relative of stochastic data at each iteration or not.
         - year (int): Year to simulate.
         - country ['AT'...'UK']: Country used in the simulation. Currently only available for 'BE': BELGIUM.
         - day_type ['weekday', 'saturday', 'sunday']: Indicate when simulating on a single day the type.
+        - start_day (int): Number of the day in {year} to start the simulation.  
     Outputs:
         - list_EV_caps (array float): Containing stochastic data, EV daily consumption.
         - list_dists (array float): Containing stochastic data, daily distance.
@@ -33,23 +34,15 @@ def EV_stoch_cons(User_list, full_year, year=2024, country='BE', day_type='weekd
     list_times=[]
     list_dists=[]
         
-    if full_year:
-        year_behaviour, dummy_days = yearly_pattern(country, year)
-    # Defining n_sim depending on arg full_year
-        if calendar.isleap(year): 
-            n_sim = 366 # leap full year
-        else:
-            n_sim = 365  # normal full year
-    else:
-        n_sim = 1
+    year_behaviour, dummy_days = yearly_pattern(country, year) #0, 1, 2
         
-    # If full_year-> d = [0...365/366], oth d = 1
-    for d in range(n_sim):            
+    for d in range(nb_days):            
         # Only 1 User created:
         for Us in User_list:
-                
-            if full_year:
-                curr_day = year_behaviour[d] #0, 1, 2
+            if nb_days > 1:
+                if start_day + d > len(year_behaviour-1):
+                    raise ValueError(f"Error in EV_stoch_cons.py, line 43: The start day ({start_day}) and number of day to simulate ({nb_days}) excess the current year.")
+                curr_day = year_behaviour[start_day+d] 
                 if curr_day == 0:
                     day_type = 'weekday'
                 elif curr_day == 1:

@@ -8,6 +8,29 @@ from read_config import read_config
 from Flexibility import flexibility_window, from_10_to_1min_basis
 from ramp_mobility.EV_run import EV_run
 
+def occ_reshape(occ: np.ndarray, ts: float)->np.ndarray:
+    '''
+    Function that reshape occupancy profile:
+        1. Make it boolean. (1: Active, 2: Sleeping)-> 1: At Home; (3: Not at home)-> 0: Not at home
+        2. From 10-min time step into 1-min time step. 
+    Inputs
+        - occ: former occupancy profile
+        - ts: simulation time step [h]
+    Outputs
+        - new_occ: reshaped new occupancy profile
+    '''
+    nTS = len(occ) 
+    #TODO
+    #prevTS=round(ts*60) # Previous Time Step in [min]
+    prevTS=10
+
+    new_occ=np.zeros((nTS-1)*prevTS)
+    # Repeat each occupancy value to match the new resolution
+    expanded_occ = np.repeat(occ[:-1], prevTS)
+    # Apply the condition to determine whether the driver is home or not.
+    new_occ = np.where(np.isin(expanded_occ, [1, 2]), 1, 0)
+    
+    return new_occ
 
 if __name__ == '__main__':
     #Simulation for 1 dwelling
@@ -17,6 +40,7 @@ if __name__ == '__main__':
     nb_days = out['sim']['ndays']
     year = out['sim']['year']
     NB_Scenarios = out['sim']['N']
+    ts = out['sim']['ts']
 
     dwelling_compo = []
     for i in range(out['dwelling']['nb_compo']):
@@ -59,12 +83,14 @@ if __name__ == '__main__':
             '''
             TO MODIFY, NEED TO ADD INPUTS IN EXCEL FILE
             '''
-            config = {  'full_year': True,    # True: Sim for whole year; False: Sim for one day.    
+            config = {  #'full_year': False,  # True: Sim for whole year; False: Sim for one day.  
+                        'nb_days': nb_days,   # Number of days to simulate
+                        'start_day': 0,       # Starting day of the simulation (/!\ start_day+nb_days<365 or 366 if leap.)
                         'countries': ['BE'],  # Associated country
                         'year': 2025,         # Associated year
-                        'plot_frame': 1440*5, # Window for plotting the profile. Set to 0 to avoid plot.
+                        'EV_disp': False,     # Flag for displaying some useful information regarding EV profile simulation.
                         'statut': EV_statut,  # Working Statut: ['working', 'student', 'inactive']
-                        'car': EV_size,      # EV size:  ['large', 'medium', 'small']
+                        'car': EV_size,       # EV size:  ['large', 'medium', 'small']
                         'day_type': 'weekday',# Day type: ['weekday', 'saturday', 'sunday'] for single day sim. Holiday is considered as sunday.
                         'day_period': 'main', # Period of the day: ['main', 'free time']
                         'func': 'business',   # Car type: ['business', 'personal'] corresp. to column in t_func.csv
@@ -72,7 +98,9 @@ if __name__ == '__main__':
                         'User_list': [],      # List containing all users.
                         'file_path': 'occupancy_profile_full_year.xlsx' # Data file containing occupancy profile.
                     }
-            EV_profile=EV_run(family.occ_m,config)
+            # Reshaping of occupancy profile 
+            occupancy = occ_reshape(family.occ_m, ts)
+            EV_profile=EV_run(occupancy,config)
 
         P[i,:] = family.P
 
