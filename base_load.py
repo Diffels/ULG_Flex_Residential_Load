@@ -1,12 +1,20 @@
-import sys,os
-import matplotlib.pyplot as plt
+# -*- coding: utf-8 -*-
+"""
+@authors: duchmax, noedi
+    
+August 2024
+"""
+
+# Import required modules
+import os
 import pandas as pd
 import numpy as np
 from Household_mod import Household_mod
 from plots import make_demand_plot
 from read_config import read_config
-from Flexibility import flexibility_window, from_10_to_1min_basis
+from Flexibility import flexibility_window
 from ramp_mobility.EV_run import EV_run
+
 
 def occ_reshape(occ: np.ndarray, ts: float)->np.ndarray:
     '''
@@ -31,6 +39,19 @@ def occ_reshape(occ: np.ndarray, ts: float)->np.ndarray:
     new_occ = np.where(np.isin(expanded_occ, [1, 2]), 1, 0)
     
     return new_occ
+
+'''
+CREATE FUNCTION THEN CREATE FILE main.py THAT CALLS IT
+'''
+def get_profiles():
+    '''
+    [...] Summary [...]
+    Inputs
+        - 
+    Outputs
+        -
+    '''
+    pass
 
 if __name__ == '__main__':
     #Simulation for 1 dwelling
