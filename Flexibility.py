@@ -1,6 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+@author: ?
+    
+August 2024
+"""
+
+# Import required modules
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 from StROBe.Data.Appliances import set_appliances
 import datetime as dt
 

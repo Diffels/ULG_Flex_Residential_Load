@@ -1,6 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+@author: duchmax
+    
+August 2024
+"""
+
+# Import required module
 from StROBe.Data.Appliances import set_appliances
 
-# translation the input variables into standard english to be used in the library:
+# Translation the input variables into standard english to be used in the library.
 translate = {
     'dwelling_type': {'Appartement':'1f',
                       "2 façades":'2f',

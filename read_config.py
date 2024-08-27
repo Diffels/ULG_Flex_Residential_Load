@@ -1,13 +1,18 @@
-import json
+# -*- coding: utf-8 -*-
+"""
+@author: duchmax
+    
+August 2024
+"""
+
+# Import required modules
 import pandas as pd
-import os
-import datetime
 from constant import translate, year
 
 
 def read_sheet(file,sheet):
     '''
-    function that reads one sheet of the excel config file and outputs it in a dataframe
+    Function that reads one sheet of excel config file and outputs it in a dataframe.
     '''
     raw = pd.read_excel(file,sheet_name=sheet)
     raw.rename(columns={ raw.columns[0]: "varname" }, inplace = True)
@@ -17,7 +22,7 @@ def read_sheet(file,sheet):
 
 def read_config(filename):
     '''
-    Function that read the excel config file for the load-shifting library
+    Function that read the excel config file for the load-shifting library.
     Parameters
     ----------
     filename : string

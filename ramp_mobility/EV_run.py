@@ -32,18 +32,16 @@ def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict)-> pd.Da
     '''
 
     '''CONFIGURATION'''
-    #full_year = config['full_year']
     nb_days = config['nb_days']
     start_day = config['start_day']
-    countries = config['countries']
+    countries = config['country']
     year = config['year']
     EV_disp = config['EV_disp']
-    statut = config['statut']
-    car = config['car']
-    day_type = config['day_type']
-    day_period = config['day_period']
-    func = config['func']
-    tot_users = config['tot_users']
+    statut = config['EV_statut']
+    car = config['EV_size']
+    day_period = 'main' # default
+    func = 'personal'   # default
+    tot_users = config['EV_nb_drivers']
     User_list = config['User_list']
     
     for c in countries:
@@ -51,26 +49,12 @@ def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict)-> pd.Da
         
         User_list = config_init_(statut, car, day_period, func, tot_users, User_list, nb_days, year=year)
     
-        EV_cons = EV_stoch_cons(User_list, nb_days, year=year, country=c, day_type=day_type, disp=EV_disp, start_day=start_day)
+        EV_cons = EV_stoch_cons(User_list, nb_days, year=year, country=c, disp=EV_disp, start_day=start_day)
         
         SOC, bin_charg, EV_refilled, load_profile = EV_occ_daily_profile(EV_cons, occupancy, SOC_init=0.9, disp=EV_disp)
         
         df_load_profile = pd.DataFrame(load_profile)
         df_load_profile.to_excel('EV_load_profile.xlsx', index=False)
-        
-        if EV_disp: 
-            minPerDay=1440
-            frame=nb_days*minPerDay
-            x_axis=range(frame)
-            #plt.plot(x_axis, Driver_athome, color='tab:blue', label='Occupancy')
-            plt.plot(x_axis, load_profile[0:frame], color='tab:green', alpha=0.6, label='SOC')
-            plt.plot(x_axis, EV_refilled[0:frame], color='tab:red', alpha=0.6, label='Battery Refilled')
-            plt.title("Occupancy and State of Charge.")
-            plt.yticks([0.0, 0.25, 0.5, 0.75, 0.9, 1.0])
-            plt.xlabel("Time [min]")
-            plt.legend()
-            plt.grid(True)
-            #plt.savefig("SOC_plot.svg")
-            plt.show()
+
     return df_load_profile  
     

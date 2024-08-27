@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+@author: ?
+    
+August 2024
+"""
+
+# Import require modules
 import os
 import sys
 import random
@@ -5,10 +13,7 @@ strobeDir = os.path.dirname(os.path.realpath(__file__)) # get path where this fi
 sys.path.append(os.path.join(strobeDir, 'StROBe/Corpus'))
 
 os.chdir(os.path.join(strobeDir, 'StROBe/Corpus'))
-import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
-import StROBe
 from StROBe.Corpus.residential import Household, Equipment
 import StROBe.Corpus.stats as stats
 import StROBe.Corpus.data as data
@@ -63,7 +68,7 @@ class Household_mod(Household):
             '''
             # Loop through all appliances and pick randomly based on the
             # rate of ownership.
-            #changes for new cold-appliance fix #######################################
+            # changes for new cold-appliance fix #######################################
             
             # Based on 10000 runs, these new values combined with rule-based fix below
             # lead to the same overall ownership as the original values.

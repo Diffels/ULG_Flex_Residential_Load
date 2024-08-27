@@ -12,7 +12,7 @@ import calendar
 from ramp_mobility.initialise import yearly_pattern 
 
 
-def EV_stoch_cons(User_list: list, nb_days: int, year=2024, country='BE', day_type='weekday', disp=True, start_day=0)->list:
+def EV_stoch_cons(User_list: list, nb_days: int, year=2024, country='BE', disp=True, start_day=0)->list:
     '''
     Function that computes stochastic data (EV daily consumption, daily time and distance) from config_init_.py 
     corresponding to Belgium case. Other files (for other countries) should be properly modified. 
@@ -49,9 +49,8 @@ def EV_stoch_cons(User_list: list, nb_days: int, year=2024, country='BE', day_ty
                     day_type = 'saturday'
                 elif curr_day == 2:
                     day_type = 'sunday'
-            elif day_type != 'weekday':
-                print("Day type set as: ",day_type,".")
             else:
+                day_type='weekday'
                 print("Default day type used: weekday.")
             
             # Selecting the appliance linked to to right day type.
@@ -71,10 +70,10 @@ def EV_stoch_cons(User_list: list, nb_days: int, year=2024, country='BE', day_ty
             power/=1e3
             EV_cap = power*rand_time/60
             #print(">> Power =", power, " [kW]")
-            if disp:
-                print(">> EV Capacity =", EV_cap, " [kWh]")
-                print(">> Distance =", rand_dist, " [km]")
-                print(">> Time =", rand_time," [min]")
+            # if disp:
+            #     print(">> EV Capacity =", EV_cap, " [kWh]")
+            #     print(">> Distance =", rand_dist, " [km]")
+            #     print(">> Time =", rand_time," [min]")
             
             list_EV_caps.append(EV_cap)
             #list_dists.append(rand_dist)

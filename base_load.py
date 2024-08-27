@@ -41,7 +41,7 @@ def occ_reshape(occ: np.ndarray, ts: float)->np.ndarray:
     return new_occ
 
 '''
-CREATE FUNCTION THEN CREATE FILE main.py THAT CALLS IT
+CREATE FUNCTION THEN CREATE FILE main.py THAT CALLS IT?
 '''
 def get_profiles():
     '''
@@ -54,35 +54,46 @@ def get_profiles():
     pass
 
 if __name__ == '__main__':
-    #Simulation for 1 dwelling
-    #Reading the input file
+    # Reading the input file in current directory
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Config.xlsx")
     out,config_full = read_config(file_path)
-    nb_days = out['sim']['ndays']
-    year = out['sim']['year']
-    NB_Scenarios = out['sim']['N']
-    ts = out['sim']['ts']
-
+    # Appliances instances definition
     dwelling_compo = []
     for i in range(out['dwelling']['nb_compo']):
         dwelling_compo.append(out['dwelling'][f'member{i+1}'])
     #family = Household_mod("Example household", nb_people = 4,selected_appliances = special_appliances)
     appliances = [x for x in out['equipment'].keys() if out['equipment'][x] == True]
 
+    '''Create a dictionnary config containing whole simulation configuration'''
+    config = {  
+                'nb_days': out['sim']['ndays'],             # Number of days to simulate
+                'year': out['sim']['year'],                 # Year of the simulation
+                'nb_Scenarios': out['sim']['N'],            # Number of Scenarios
+                'ts': out['sim']['ts'],                     # Time Step resolution [h]
+                'start_day': out['sim']['start_day'],       # Starting day of the simulation (/!\ start_day+nb_days<365 or 366 if leap.)
+                'country': [out['sim']['country']],         # Associated country
 
-    flex_mode = out['flex']['type']
-    flex_rate = out['flex']['rate']
+                'appliances': appliances,                   #
 
-    EV_presence = out['EV']['present']
-    EV_size = out['EV']['size']
-    EV_statut = out['EV']['statut']
+                'flex_mode': out['flex']['type'],           #
+                'flex_rate': out['flex']['rate'],           #
 
-    nminutes = nb_days * 1440 + 1
-    P = np.zeros((NB_Scenarios, nminutes))
-    for i in range(NB_Scenarios):
+                # EV Parameters
+                'EV_presence': out['EV']['present'],        # If a EV is present or not.
+                'EV_size': out['EV']['size'],               # EV size:  ['large', 'medium', 'small']
+                'EV_statut': out['EV']['statut'],           # Working Statut: ['working', 'student', 'inactive']
+                'EV_disp': out['EV']['disp'],               # Flag for displaying some useful information regarding EV profile simulation.
+                'EV_nb_drivers': out['EV']['nb_drivers'],   # Number of user to define. For this model=1.
+                'User_list': [],                            # List containing all users.
+            }
+
+
+    nminutes = config['nb_days'] * 1440 + 1
+    P = np.zeros((config['nb_Scenarios'], nminutes))
+    for i in range(config['nb_Scenarios']):
         family = Household_mod(f"Scenario {i}",members = dwelling_compo, selected_appliances = appliances)
         #family = Household_mod(f"Scenario {i}")
-        family.simulate(year = year, ndays = nb_days)
+        family.simulate(year = config['year'], ndays = config['nb_days'])
         if i == 0:
             """occupancy = dict()
             for j in range(len(dwelling_compo)):
@@ -97,30 +108,13 @@ if __name__ == '__main__':
                     df[key] += value
                 else :
                     df[key] = value
-        if pd.notna(flex_mode) and appliances: 
-            flex_window = flexibility_window(df[appliances], family.occ_m, flex_mode, flexibility_rate= flex_rate)
+        if pd.notna(config['flex_mode']) and appliances: 
+            flex_window = flexibility_window(df[appliances], family.occ_m, config['flex_mode'], flexibility_rate= config['flex_rate'])
         
-        if EV_presence == 'Yes':
-            '''
-            TO MODIFY, NEED TO ADD INPUTS IN EXCEL FILE
-            '''
-            config = {  #'full_year': False,  # True: Sim for whole year; False: Sim for one day.  
-                        'nb_days': nb_days,   # Number of days to simulate
-                        'start_day': 0,       # Starting day of the simulation (/!\ start_day+nb_days<365 or 366 if leap.)
-                        'countries': ['BE'],  # Associated country
-                        'year': 2025,         # Associated year
-                        'EV_disp': False,     # Flag for displaying some useful information regarding EV profile simulation.
-                        'statut': EV_statut,  # Working Statut: ['working', 'student', 'inactive']
-                        'car': EV_size,       # EV size:  ['large', 'medium', 'small']
-                        'day_type': 'weekday',# Day type: ['weekday', 'saturday', 'sunday'] for single day sim. Holiday is considered as sunday.
-                        'day_period': 'main', # Period of the day: ['main', 'free time']
-                        'func': 'business',   # Car type: ['business', 'personal'] corresp. to column in t_func.csv
-                        'tot_users': 1,       # Number of user to define. For this model=1.
-                        'User_list': [],      # List containing all users.
-                        'file_path': 'occupancy_profile_full_year.xlsx' # Data file containing occupancy profile.
-                    }
+        if config['EV_presence'] == 'Yes':
             # Reshaping of occupancy profile 
-            occupancy = occ_reshape(family.occ_m, ts)
+            occupancy = occ_reshape(family.occ_m, config['ts'])
+            # Running EV module
             EV_profile=EV_run(occupancy,config)
 
         P[i,:] = family.P
@@ -129,8 +123,10 @@ if __name__ == '__main__':
     df = df.drop(df.index[-1])
     df['EVCharging'] = EV_profile*1000
     total_elec = np.sum(P)
-    average_total_elec = total_elec/NB_Scenarios
-    df = df/NB_Scenarios
+    average_total_elec = total_elec/config['nb_Scenarios']
+    df = df/config['nb_Scenarios']
+
+    # May we delete this? 
     """print(' - Total load is %s kWh' % str(average_total_elec.sum()/60/1000))
     print("total Wash machine elec consumptoon is %s" % str(df['WashingMachine'].sum()/60/1000))
     print("total DishWasher elec consumptoonis %s" % str(df['DishWasher'].sum()/60/1000))
@@ -148,4 +144,4 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.show()"""
 
-    make_demand_plot(df[:100000].index, df[:100000], title=f"Average Consumption for {NB_Scenarios} scenarios")
+    make_demand_plot(df[:100000].index, df[:100000], title=f"Average Consumption for {config['nb_Scenarios']} scenarios")

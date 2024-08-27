@@ -1,10 +1,21 @@
-#Adapted From Sylvain Quoilin 
+# -*- coding: utf-8 -*-
+"""
+Imported from load-shifting:
+    https://github.com/pielube/loadshifting
+    (Sylvain Quoilin)
+    
+Modified by duchmax
+August 2024
+"""
 
+# Import required modules
 import plotly.graph_objects as go
 from constant import defaultcolors, StaticLoad
+
+
 def make_demand_plot(idx,data,PV = None,title='Consumption', NB_Scenario = 1):
     '''
-    Uses to plotly to generate a stacked consumption plot
+    Use of plotly to generate a stacked consumption plot, on local server.
 
     Parameters
     ----------
@@ -21,7 +32,10 @@ def make_demand_plot(idx,data,PV = None,title='Consumption', NB_Scenario = 1):
 
     '''
     StaticLoad_pres = [col for col in StaticLoad if col in data.columns]
-    data['Base Load'] = data[StaticLoad_pres].sum(axis=1)
+    # Modification noedi
+    # data['Base Load'] = data[StaticLoad_pres].sum(axis=1)
+    data=data.copy()
+    data.loc[:, 'Base Load'] = data[StaticLoad_pres].sum(axis=1)
     data= data.drop(columns=StaticLoad_pres)
 
     fig = go.Figure()
@@ -48,7 +62,6 @@ def make_demand_plot(idx,data,PV = None,title='Consumption', NB_Scenario = 1):
             fillcolor = defaultcolors[key],
             mode='none'               # this remove the lines
            ))
-    
 
     fig.update_layout(title = title,
                       xaxis_title = 'Dates',
