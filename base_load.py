@@ -59,7 +59,7 @@ def get_inputs():
                 'nb_Scenarios': out['sim']['N'],            # Number of Scenarios
                 'ts': out['sim']['ts'],                     # Time Step resolution [h]
                 'start_day': out['sim']['start_day'],       # Starting day of the simulation (/!\ start_day+nb_days<365 or 366 if leap.)
-                'country': [out['sim']['country']],         # Associated country
+                'country': out['sim']['country'],         # Associated country
 
                 'appliances': appliances,                   #
 
