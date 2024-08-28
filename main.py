@@ -12,7 +12,7 @@ import numpy as np
 
 if __name__ == '__main__':
 
-    nSim=100
+    nSim=30
 
     loads = np.zeros(nSim)
     times = np.zeros(nSim)
@@ -24,7 +24,7 @@ if __name__ == '__main__':
         execution_time = end_time - start_time
         loads[sim]=tot_load
         times[sim]=execution_time
-        print(f"Simulation {sim}/{nSim} is done. Execution time: {execution_time} s.")
+        print(f"Simulation {sim+1}/{nSim} is done. Execution time: {execution_time} s.")
 
 print("---- Results ----")
 print("\t Execution time [s]")
