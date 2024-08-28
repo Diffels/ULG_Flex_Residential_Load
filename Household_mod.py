@@ -21,7 +21,7 @@ from StROBe.Data.Appliances import set_appliances
 from StROBe.Data.Households import households
 from constant import special_appliances
 import itertools
-
+import pandas as pd
 class Household_mod(Household):  
     def parameterize(self, **kwargs):
         '''
@@ -382,6 +382,9 @@ class Household_mod(Household):
         for key,value in appliances_cons.items():
             new_appliance.update({key : value[start:stop+1]})
         del self.app_consumption
+
+        app = pd.DataFrame(new_appliance)
+        new_appliance = app.drop(index = len(app)-1)
         self.app_consumption  = new_appliance
 
         #######################################################################
