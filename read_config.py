@@ -75,7 +75,7 @@ def read_config(filename):
         config['sim_year'] = year
     
     # write the configuration into sub-dictionnaries
-    for prefix in ['sim','dwelling','equipment','flex','hp','dhw','EV','pv','batt','econ','cont','loc']:
+    for prefix in ['sim','dwelling','equipment','flex','hp','dhw','EV','pv','batt','econ','cont','loc', 'plt']:
         subset = config[[x.startswith(prefix + '_') for x in config.index]]
         n = len(prefix)+1
         subset.index = [x[n:] for x in subset.index]

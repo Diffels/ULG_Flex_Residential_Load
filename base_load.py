@@ -15,7 +15,7 @@ from plots import make_demand_plot
 from read_config import read_config
 from Flexibility import flexibility_window
 from ramp_mobility.EV_run import EV_run
-
+import time
 
 def occ_reshape(occ: np.ndarray, ts: float)->np.ndarray:
     '''
@@ -41,17 +41,7 @@ def occ_reshape(occ: np.ndarray, ts: float)->np.ndarray:
     
     return new_occ
 
-'''
-CREATE FUNCTION THEN CREATE FILE main.py THAT CALLS IT?
-'''
-def get_profiles():
-    '''
-    [...] Summary [...]
-    Inputs
-        - 
-    Outputs
-        -
-    '''
+def get_inputs():
         # Reading the input file in current directory
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Config.xlsx")
     out,config_full = read_config(file_path)
@@ -59,7 +49,7 @@ def get_profiles():
     dwelling_compo = []
     for i in range(out['dwelling']['nb_compo']):
         dwelling_compo.append(out['dwelling'][f'member{i+1}'])
-    #family = Household_mod("Example household", nb_people = 4,selected_appliances = special_appliances)
+
     appliances = [x for x in out['equipment'].keys() if out['equipment'][x] == True]
 
     '''Create a dictionnary config containing whole simulation configuration'''
@@ -83,22 +73,31 @@ def get_profiles():
                 'EV_disp': False, # out['EV']['disp'],      #TODO Flag for displaying some useful information regarding EV profile simulation.
                 'EV_nb_drivers': out['EV']['nb_drivers'],   # Number of user to define. For this model=1.
                 'User_list': [],                            # List containing all users.
-            }
 
+                'Plot' : out['plt']['plot']
+            }
+    return config, dwelling_compo, appliances
+'''
+CREATE FUNCTION THEN CREATE FILE main.py THAT CALLS IT?
+'''
+def get_profiles(config, dwelling_compo, appliances):
+    '''
+    [...] Summary [...]
+    Inputs
+        - 
+    Outputs
+        -
+    '''
+    times = np.zeros(config['nb_Scenarios'])
 
     nminutes = config['nb_days'] * 1440 + 1
     P = np.zeros((config['nb_Scenarios'], nminutes))
     for i in range(config['nb_Scenarios']):
+        start_time = time.time()
         family = Household_mod(f"Scenario {i}",members = dwelling_compo, selected_appliances = appliances) # print put in com 
         #family = Household_mod(f"Scenario {i}")
         family.simulate(year = config['year'], ndays = config['nb_days']) # print in com
         if i == 0:
-            """occupancy = dict()
-            for j in range(len(dwelling_compo)):
-                occupancy.update({dwelling_compo[j]:family.occ[j]})
-            occupancy = pd.DataFrame(occupancy)
-            occupancy['Merged'] = family.occ_m
-            occupancy.to_excel('C:\Master 3\Job été\MRL-Wallonia\occupancy_profile.xlsx')"""
             df = pd.DataFrame(family.app_consumption)
         else : 
             for key, value in family.app_consumption.items():
@@ -112,10 +111,15 @@ def get_profiles():
         if config['EV_presence'] == 'Yes':
             # Reshaping of occupancy profile 
             occupancy = occ_reshape(family.occ_m, config['ts'])
+            print(occupancy[0])
             # Running EV module
             EV_profile=EV_run(occupancy,config)
 
         P[i,:] = family.P
+        end_time = time.time()
+        execution_time = end_time - start_time
+        times[i]=execution_time
+        print(f"Simulation {i+1}/{config['nb_Scenarios']} is done. Execution time: {execution_time} s.") 
 
     P = np.array(P)
     df = df.drop(df.index[-1])
@@ -124,25 +128,7 @@ def get_profiles():
     average_total_elec = total_elec/config['nb_Scenarios']
     df = df/config['nb_Scenarios']
 
-    #print(f'Total load is {(average_total_elec.sum()/60/1000)} kWh\n')
-    # print("total Wash machine elec consumptoon is %s" % str(df['WashingMachine'].sum()/60/1000))
-    # print("total DishWasher elec consumptoonis %s" % str(df['DishWasher'].sum()/60/1000))
-    # print("total WhasherDryer elec consumptoon is %s"% str(df['WasherDryer'].sum()/60/1000))
-    # print("total TrumbleDryer elec consumptoon is %s"% str(df['TumbleDryer'].sum()/60/1000))
-    '''average_total_elec = total_elec/config['nb_Scenarios']
-    df = df/config['nb_Scenarios']
-    power = pd.DataFrame({"Power" : average_total_elec})
-    power.plot()
-    df.to_excel("mean_load_profile_100.xlsx")
-    plt.title("Aggregated load curve")
-    plt.xlabel("Timestep (5min timestep) [hour]")
-    plt.ylabel("Load [W]")
-    plt.legend()
-    plt.grid(True)
-    plt.show()'''
-
-    # make_demand_plot(df[:100000].index, df[:100000], title=f"Average Consumption for {config['nb_Scenarios']} scenarios")
-    return average_total_elec.sum()/60/1000
+    return average_total_elec.sum()/60/1000, times, df
 
 if __name__ == '__main__':
     pass
