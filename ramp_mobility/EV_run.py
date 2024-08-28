@@ -36,11 +36,10 @@ def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict)-> pd.Da
     start_day = config['start_day']
     country = config['country']
     year = config['year']
-    EV_disp = config['EV_disp']
     #statut = config['EV_statut']
     car = config['EV_size']
     usage = config['EV_usage']
-    charger_pow = config['charger_pow'] 
+    charger_pow = config['EV_charger_power'] 
     #day_period = 'main' # default
     #func = 'personal'   # default
     #tot_users = config['EV_nb_drivers']
