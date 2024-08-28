@@ -50,7 +50,7 @@ def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict)-> pd.Da
         User_list = config_init_(statut, car, day_period, func, tot_users, User_list, nb_days, year=year, disp=EV_disp)
     
         EV_cons = EV_stoch_cons(User_list, nb_days, year=year, country=c, disp=EV_disp, start_day=start_day)
-        
+        print(len(EV_cons))
         SOC, bin_charg, EV_refilled, load_profile = EV_occ_daily_profile(EV_cons, occupancy, User_list, SOC_init=0.9, disp=EV_disp)
         
         df_load_profile = pd.DataFrame(load_profile)
