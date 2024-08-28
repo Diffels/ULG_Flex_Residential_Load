@@ -51,7 +51,7 @@ def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict)-> pd.Da
     
         EV_cons = EV_stoch_cons(User_list, nb_days, year=year, country=c, disp=EV_disp, start_day=start_day)
         
-        SOC, bin_charg, EV_refilled, load_profile = EV_occ_daily_profile(EV_cons, occupancy, SOC_init=0.9, disp=EV_disp)
+        SOC, bin_charg, EV_refilled, load_profile = EV_occ_daily_profile(EV_cons, occupancy, User_list, SOC_init=0.9, disp=EV_disp)
         
         df_load_profile = pd.DataFrame(load_profile)
         df_load_profile.to_excel('EV_load_profile.xlsx', index=False)
