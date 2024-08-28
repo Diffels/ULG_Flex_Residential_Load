@@ -98,7 +98,7 @@ def get_profiles(config, dwelling_compo, appliances):
         #family = Household_mod(f"Scenario {i}")
         family.simulate(year = config['year'], ndays = config['nb_days']) # print in com
         if i == 0:
-            df = pd.DataFrame(family.app_consumption)
+            df = pd.DataFrame(family.app_consumption)           
         else : 
             for key, value in family.app_consumption.items():
                 if key in df.columns:
@@ -111,19 +111,21 @@ def get_profiles(config, dwelling_compo, appliances):
         if config['EV_presence'] == 'Yes':
             # Reshaping of occupancy profile 
             occupancy = occ_reshape(family.occ_m, config['ts'])
-            print(occupancy[0])
             # Running EV module
             EV_profile=EV_run(occupancy,config)
-
+            if i == 0:
+                df['EVCharging'] =  EV_profile
+            else :
+                df['EVCharging'] = df['EVCharging'] + EV_profile['EVCharging']
+        
         P[i,:] = family.P
         end_time = time.time()
         execution_time = end_time - start_time
-        times[i]=execution_time
+        times[i] = execution_time
         print(f"Simulation {i+1}/{config['nb_Scenarios']} is done. Execution time: {execution_time} s.") 
 
     P = np.array(P)
-    df = df.drop(df.index[-1])
-    df['EVCharging'] = EV_profile*1000
+    
     total_elec = np.sum(P)
     average_total_elec = total_elec/config['nb_Scenarios']
     df = df/config['nb_Scenarios']
