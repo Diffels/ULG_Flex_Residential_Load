@@ -34,27 +34,26 @@ def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict)-> pd.Da
     '''CONFIGURATION'''
     nb_days = config['nb_days']
     start_day = config['start_day']
-    countries = config['country']
+    country = config['country']
     year = config['year']
     EV_disp = config['EV_disp']
-    statut = config['EV_statut']
+    #statut = config['EV_statut']
     car = config['EV_size']
-    day_period = 'main' # default
-    func = 'personal'   # default
-    tot_users = config['EV_nb_drivers']
-    User_list = config['User_list']
+    usage = config['EV_usage']
+    charger_pow = config['charger_pow'] 
+    #day_period = 'main' # default
+    #func = 'personal'   # default
+    #tot_users = config['EV_nb_drivers']
+    #User_list = config['User_list']
+
+    Driver = config_init_(car, usage, country)
+
+    EV_cons, EV_dist, EV_time = EV_stoch_cons(Driver, nb_days, year=year, country=country, start_day=start_day)
+
+    SOC, bin_charg, EV_refilled, load_profile = EV_occ_daily_profile(EV_cons, occupancy, Driver, charger_pow, SOC_init=0.9, disp=EV_disp)
     
-    for c in countries:
-        if c != 'BE': raise ValueError("Model is currently only working for Belgium.")
-        
-        User_list = config_init_(statut, car, day_period, func, tot_users, User_list, nb_days, year=year, disp=EV_disp)
-    
-        EV_cons = EV_stoch_cons(User_list, nb_days, year=year, country=c, disp=EV_disp, start_day=start_day)
-        
-        SOC, bin_charg, EV_refilled, load_profile = EV_occ_daily_profile(EV_cons, occupancy, User_list, SOC_init=0.9, disp=EV_disp)
-        
-        df_load_profile = pd.DataFrame(load_profile)
-        df_load_profile.to_excel('EV_load_profile.xlsx', index=False)
+    df_load_profile = pd.DataFrame(load_profile)
+    df_load_profile.to_excel('EV_load_profile.xlsx', index=False)
 
     return df_load_profile  
     

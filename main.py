@@ -18,18 +18,6 @@ if __name__ == '__main__':
 
     nSim=config['nb_Scenarios']
 
-    """loads = np.zeros(nSim)
-    times = np.zeros(nSim)
-"""
-    """for sim in range(nSim):
-        start_time = time.time()
-        tot_load,df = get_profiles(config, dwelling_compo, appliances)
-        end_time = time.time()
-        execution_time = end_time - start_time
-        loads[sim]=tot_load
-        times[sim]=execution_time
-        print(f"Simulation {sim+1}/{nSim} is done. Execution time: {execution_time} s.")"""
-
     loads, times, df = get_profiles(config, dwelling_compo, appliances)
     print("---- Results ----")
     print("\t Execution time [s]")
