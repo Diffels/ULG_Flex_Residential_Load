@@ -69,9 +69,9 @@ def get_inputs():
                 # EV Parameters
                 'EV_presence': out['EV']['present'],        # If a EV is present or not.
                 'EV_size': out['EV']['size'],               # EV size:  ['large', 'medium', 'small']
-                'EV_statut': out['EV']['statut'],           # Working Statut: ['working', 'student', 'inactive']
-                'EV_disp': False, # out['EV']['disp'],      #TODO Flag for displaying some useful information regarding EV profile simulation.
-                'EV_nb_drivers': out['EV']['nb_drivers'],   # Number of user to define. For this model=1.
+                'EV_disp': False, #out['EV']['disp'],       #TODO Flag for displaying some useful information regarding EV profile simulation.
+                'EV_usage': 'normal', #out['EV']['usage']   #TODO ['short', 'normal', 'long']
+                'EV_charger_power': 3.7, #out['EV']['usage] #TODO un float en kW
                 'User_list': [],                            # List containing all users.
 
                 'Plot' : out['plt']['plot']

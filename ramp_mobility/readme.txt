@@ -18,6 +18,7 @@ Size car [x, y, z] defined in .py + expl
 Type Driver [] defined in +expl
 
 
+
 #TO DO: maybe set a min time for EV departure, ex if the departure lasts less than 10 min, no EV departure.
 
 # Delete not usefull things such as working statut, windows etc

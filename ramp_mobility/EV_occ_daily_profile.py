@@ -31,7 +31,7 @@ def prob_charge_notHome_fun(E_journey, E_leaving):
     return P
     
 
-def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occupancy: np.ndarray[Any, np.dtype[np.bool_]], Driver: object, SOC_init=0.9, disp=True):
+def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occupancy: np.ndarray[Any, np.dtype[np.bool_]], Driver: object, charger_power: float, SOC_init=0.9, disp=True):
     '''
     Function returning an array containing daily profile which splits the stochastic
     EV capacities given by EV_stochastic.py according to a occupancy profile input.
@@ -57,7 +57,6 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
     SOC_max = 0.9 
     SOC_min = 0.1
     eff = 0.90
-    charger_power = 3.7 # [kW]
 
     EV = Driver.App_list[0]
     battery_cap = EV.Battery_cap # [kWh]
