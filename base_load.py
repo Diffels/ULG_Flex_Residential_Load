@@ -73,8 +73,13 @@ def get_inputs():
                 'EV_charger_power': 3.7, #out['EV']['usage] #TODO un float en kW
                 'User_list': [],                            # List containing all users.
 
-                'Plot' : out['plt']['plot']
+                
             }
+    if out['plt']['plot'] == "True":
+        config['Plot'] =True
+    else:
+        config['Plot'] = False
+
     return config, dwelling_compo
 '''
 CREATE FUNCTION THEN CREATE FILE main.py THAT CALLS IT?
@@ -104,8 +109,8 @@ def get_profiles(config, dwelling_compo):
                     df[key] += value
                 else :
                     df[key] = value
-        if pd.notna(config['flex_mode']) and appliances: 
-            flex_window = flexibility_window(df[appliances], family.occ_m, config['flex_mode'], flexibility_rate= config['flex_rate'])
+        if pd.notna(config['flex_mode']) : 
+            flex_window = flexibility_window(df[config['appliances'].keys()], family.occ_m, config['flex_mode'], flexibility_rate= config['flex_rate'])
         
         if config['EV_presence'] == 'Yes':
             # Reshaping of occupancy profile 
@@ -113,9 +118,9 @@ def get_profiles(config, dwelling_compo):
             # Running EV module
             EV_profile=EV_run(occupancy,config)
             if i == 0:
-                df['EVCharging'] =  EV_profile
+                df['EVCharging'] =  EV_profile*1000
             else :
-                df['EVCharging'] = df['EVCharging'] + EV_profile['EVCharging']
+                df['EVCharging'] = df['EVCharging'] + EV_profile['EVCharging']*1000
         
         P[i,:] = family.P
         end_time = time.time()
@@ -129,7 +134,18 @@ def get_profiles(config, dwelling_compo):
     average_total_elec = total_elec/config['nb_Scenarios']
     df = df/config['nb_Scenarios']
 
+    df = index_to_datetime(df, config['year'],config['ts'])
+    
     return average_total_elec.sum()/60/1000, times, df
 
-if __name__ == '__main__':
-    pass
+import datetime as dt
+
+def index_to_datetime(df, year, ts):
+    init_date = dt.datetime(year, 1,1,0,0)
+    dates = []
+    for i in range(len(df)):
+        dates.append(init_date+dt.timedelta(minutes=i))
+    df['DateTime'] = dates
+    df = df.set_index('DateTime')
+    df10min = df.resample(str(ts)+'T').mean()
+    return df10min

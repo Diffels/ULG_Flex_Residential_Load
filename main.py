@@ -24,9 +24,10 @@ if __name__ == '__main__':
     print(f"\t\tMean: {np.mean(times)}; STD: {np.std(times)}")
     print("\t Total load per week [kWh]")
     print(f"\t\tMean: {np.mean(loads)}; STD: {np.std(loads)}")
-    print("\t Total load per year [GWh]")
+    print("\t Total load per year [MWh]")
     print(f"\t\tMean: {np.mean(loads*52/1e3)}; STD: {np.std(loads*52/1e3)}")
 
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Results.xlsx")
+    df.to_excel(file_path)
     if config['Plot'] :
-        make_demand_plot(df[:100000].index, df[:100000], title=f"Average Consumption for {config['nb_Scenarios']} scenarios")
+        make_demand_plot(df.index, df, title=f"Average Consumption for {config['nb_Scenarios']} scenarios")
