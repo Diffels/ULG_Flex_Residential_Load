@@ -36,22 +36,17 @@ def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict)-> pd.Da
     start_day = config['start_day']
     country = config['country']
     year = config['year']
-    #statut = config['EV_statut']
     car = config['EV_size']
     usage = config['EV_usage']
     charger_pow = config['EV_charger_power'] 
-    #day_period = 'main' # default
-    #func = 'personal'   # default
-    #tot_users = config['EV_nb_drivers']
-    #User_list = config['User_list']
-
+    
     Driver = config_init_(car, usage, country)
 
     EV_cons, EV_dist, EV_time = EV_stoch_cons(Driver, nb_days, year=year, country=country, start_day=start_day)
 
-    SOC, bin_charg, EV_refilled, load_profile = EV_occ_daily_profile(EV_cons, occupancy, Driver, charger_pow, SOC_init=0.9, disp=EV_disp)
+    SOC, bin_charg, EV_refilled, load_profile = EV_occ_daily_profile(EV_cons, occupancy, Driver, charger_pow, SOC_init=0.9)
     
-    df_load_profile = pd.DataFrame(load_profile)
+    df_load_profile = pd.DataFrame({'EVCharging' :load_profile})
     df_load_profile.to_excel('EV_load_profile.xlsx', index=False)
 
     return df_load_profile  

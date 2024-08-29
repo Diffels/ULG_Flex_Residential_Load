@@ -60,12 +60,12 @@ def read_config(filename):
     
     config = config_full['Valeur']
     # Transform selected string variables to boolean:
-    for x in ['equipment_WashingMachine','equipment_TumbleDryer','equipment_DishWasher','equipment_WasherDryer']:
+    """for x in ['equipment_WashingMachine','equipment_TumbleDryer','equipment_DishWasher','equipment_WasherDryer']:
         if config[x] in ['Oui','Yes','yes']:
             config[x] = True
         else:
             config[x] = False
-    
+    """
     # translate text variables into the standard english form used by the library:
     for key in translate:
         config[key] = translate[key][config[key]]

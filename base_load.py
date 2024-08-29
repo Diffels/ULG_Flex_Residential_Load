@@ -49,8 +49,8 @@ def get_inputs():
     dwelling_compo = []
     for i in range(out['dwelling']['nb_compo']):
         dwelling_compo.append(out['dwelling'][f'member{i+1}'])
-
-    appliances = [x for x in out['equipment'].keys() if out['equipment'][x] == True]
+    
+    
 
     '''Create a dictionnary config containing whole simulation configuration'''
     config = {  
@@ -61,7 +61,7 @@ def get_inputs():
                 'start_day': out['sim']['start_day'],       # Starting day of the simulation (/!\ start_day+nb_days<365 or 366 if leap.)
                 'country': out['sim']['country'],         # Associated country
 
-                'appliances': appliances,                   #
+                'appliances': out['equipment'],                   #
 
                 'flex_mode': out['flex']['type'],           #
                 'flex_rate': out['flex']['rate'],           #
@@ -69,18 +69,17 @@ def get_inputs():
                 # EV Parameters
                 'EV_presence': out['EV']['present'],        # If a EV is present or not.
                 'EV_size': out['EV']['size'],               # EV size:  ['large', 'medium', 'small']
-
                 'EV_usage': 'normal', #out['EV']['usage']   #TODO ['short', 'normal', 'long']
                 'EV_charger_power': 3.7, #out['EV']['usage] #TODO un float en kW
                 'User_list': [],                            # List containing all users.
 
                 'Plot' : out['plt']['plot']
             }
-    return config, dwelling_compo, appliances
+    return config, dwelling_compo
 '''
 CREATE FUNCTION THEN CREATE FILE main.py THAT CALLS IT?
 '''
-def get_profiles(config, dwelling_compo, appliances):
+def get_profiles(config, dwelling_compo):
     '''
     [...] Summary [...]
     Inputs
@@ -94,7 +93,7 @@ def get_profiles(config, dwelling_compo, appliances):
     P = np.zeros((config['nb_Scenarios'], nminutes))
     for i in range(config['nb_Scenarios']):
         start_time = time.time()
-        family = Household_mod(f"Scenario {i}",members = dwelling_compo, selected_appliances = appliances) # print put in com 
+        family = Household_mod(f"Scenario {i}",members = dwelling_compo, selected_appliances = config['appliances']) # print put in com 
         #family = Household_mod(f"Scenario {i}")
         family.simulate(year = config['year'], ndays = config['nb_days']) # print in com
         if i == 0:

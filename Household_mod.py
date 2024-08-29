@@ -84,11 +84,9 @@ class Household_mod(Household):
                     obj = Equipment(**set_appliances[app])
                     if 'selected_appliances' in kwargs:
                         if set_appliances[app]['name'] in kwargs['selected_appliances'] :
-                            owner = True
+                            owner = kwargs['selected_appliances'][app]/100 >= random.random()
                         elif set_appliances[app]['name'] not in special_appliances : 
                             owner = obj.owner >= random.random()
-                        else :
-                            owner = False
                     else :
                         owner = obj.owner >= random.random()   
                     app_n.append(app) if owner else None

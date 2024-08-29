@@ -14,11 +14,11 @@ from plots import make_demand_plot
 
 if __name__ == '__main__':
 
-    config, dwelling_compo, appliances = get_inputs()
+    config, dwelling_compo = get_inputs()
 
     nSim=config['nb_Scenarios']
 
-    loads, times, df = get_profiles(config, dwelling_compo, appliances)
+    loads, times, df = get_profiles(config, dwelling_compo)
     print("---- Results ----")
     print("\t Execution time [s]")
     print(f"\t\tMean: {np.mean(times)}; STD: {np.std(times)}")
