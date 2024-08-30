@@ -129,7 +129,8 @@ def get_profiles(config, dwelling_compo):
     
     total_elec = np.sum(P)
     average_total_elec = total_elec/config['nb_Scenarios']
-    df = df/config['nb_Scenarios']
+    
+    #df = df/config['nb_Scenarios']
 
     df = index_to_datetime(df, config['year'],config['ts'])
     
@@ -144,5 +145,5 @@ def index_to_datetime(df, year, ts):
         dates.append(init_date+dt.timedelta(minutes=i))
     df['DateTime'] = dates
     df = df.set_index('DateTime')
-    df10min = df.resample(str(ts)+'T').mean()
+    df10min = df.resample(str(ts)+'min').mean()
     return df10min
