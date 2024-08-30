@@ -24,18 +24,15 @@ def occ_reshape(occ: np.ndarray, ts: float)->np.ndarray:
         2. From 10-min time step into 1-min time step. 
     Inputs
         - occ: former occupancy profile
-        - ts: simulation time step [h]
+        - ts: simulation time step [min]
     Outputs
         - new_occ: reshaped new occupancy profile
     '''
     nTS = len(occ) 
-    #TODO
-    #prevTS=round(ts*60) # Previous Time Step in [min]
-    prevTS=10
 
-    new_occ=np.zeros((nTS-1)*prevTS)
+    new_occ=np.zeros((nTS-1)*ts)
     # Repeat each occupancy value to match the new resolution
-    expanded_occ = np.repeat(occ[:-1], prevTS)
+    expanded_occ = np.repeat(occ[:-1], ts)
     # Apply the condition to determine whether the driver is home or not.
     new_occ = np.where(np.isin(expanded_occ, [1, 2]), 1, 0)
     
@@ -54,36 +51,34 @@ def get_inputs():
 
     '''Create a dictionnary config containing whole simulation configuration'''
     config = {  
-                'nb_days': out['sim']['ndays'],             # Number of days to simulate
-                'year': out['sim']['year'],                 # Year of the simulation
-                'nb_Scenarios': out['sim']['N'],            # Number of Scenarios
-                'ts': out['sim']['ts'],                     # Time Step resolution [h]
-                'start_day': out['sim']['start_day'],       # Starting day of the simulation (/!\ start_day+nb_days<365 or 366 if leap.)
-                'country': out['sim']['country'],         # Associated country
+                'nb_days': out['sim']['ndays'],                 # Number of days to simulate
+                'year': out['sim']['year'],                     # Year of the simulation
+                'nb_Scenarios': out['sim']['N'],                # Number of Scenarios
+                'ts': out['sim']['ts'],                         # Time Step resolution [min]
+                'start_day': out['sim']['start_day'],           # Starting day of the simulation (/!\ start_day+nb_days<365 or 366 if leap.)
+                'country': out['sim']['country'],               # Associated country
 
-                'appliances': out['equipment'],                   #
+                'appliances': out['equipment'],                 #
 
-                'flex_mode': out['flex']['type'],           #
-                'flex_rate': out['flex']['rate'],           #
+                'flex_mode': out['flex']['type'],               #
+                'flex_rate': out['flex']['rate'],               #
 
                 # EV Parameters
-                'EV_presence': out['EV']['present'],        # If a EV is present or not.
-                'EV_size': out['EV']['size'],               # EV size:  ['large', 'medium', 'small']
-                'EV_usage': 'normal', #out['EV']['usage']   #TODO ['short', 'normal', 'long']
-                'EV_charger_power': 3.7, #out['EV']['usage] #TODO un float en kW
-                'User_list': [],                            # List containing all users.
-
+                'EV_presence': out['EV']['present'],            # If a EV is present or not.
+                'EV_size': out['EV']['size'],                   # EV size:  ['large', 'medium', 'small']
+                'EV_usage': out['EV']['usage'],                 # ['short', 'normal', 'long', (int: km/year)]
+                'EV_charger_power': out['EV']['charger_power'], # Power charger station [kW]         
                 
             }
+    
     if out['plt']['plot'] == "True":
         config['Plot'] =True
     else:
         config['Plot'] = False
 
     return config, dwelling_compo
-'''
-CREATE FUNCTION THEN CREATE FILE main.py THAT CALLS IT?
-'''
+
+
 def get_profiles(config, dwelling_compo):
     '''
     [...] Summary [...]
@@ -112,11 +107,14 @@ def get_profiles(config, dwelling_compo):
         if pd.notna(config['flex_mode']) : 
             flex_window = flexibility_window(df[config['appliances'].keys()], family.occ_m, config['flex_mode'], flexibility_rate= config['flex_rate'])
         print(config["EV_presence"])
-        if config['EV_presence']/100 >= random.random():
+        if True: #config['EV_presence']/100 >= random.random():
             # Reshaping of occupancy profile 
             occupancy = occ_reshape(family.occ_m, config['ts'])
             # Running EV module
-            EV_profile=EV_run(occupancy,config)
+            load_profile=EV_run(occupancy,config)
+            EV_profile = pd.DataFrame({'EVCharging':load_profile})
+            EV_flex = pd.DataFrame({'EVCharging':load_profile, 'Occupancy':occupancy})
+
             if 'EVCharging' not in df.columns:
                 df['EVCharging'] =  EV_profile*1000
             else :

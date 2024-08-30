@@ -120,8 +120,13 @@ def config_init_(car: str, usage: str, country: str)->object:
         for travel_type in ['personal']:
             t_func[day] = t_func_data[country_equivalent][travel_type][day]    
 
-    # Definition of Users     
-    user = User(name=usage+'-'+car, n_users=1)
+    # Definition of Users
+    if isinstance(usage, int):
+        name=f'Km/year ({usage})'
+    else:
+        name=usage
+
+    user = User(name=name+'-'+car, n_users=1)
     
     
     # Definition of Appliances: One App for each day type.
@@ -129,9 +134,16 @@ def config_init_(car: str, usage: str, country: str)->object:
     
     App=[]
     for d in day_types:
-        dist_tot = d_tot[d] * Usage_car_mean[usage]
-        dist_min = d_min[d] * Usage_car_min[usage]
-        time_func = t_func[d] * Usage_car_time[usage]
+        if not isinstance(usage, int):
+            dist_tot = d_tot[d] * Usage_car_mean[usage]
+            dist_min = d_min[d] * Usage_car_min[usage]
+            time_func = t_func[d] * Usage_car_time[usage]
+        else:
+            kmPerDay = usage/365
+            ratio = kmPerDay/d_tot[d]
+            dist_tot = kmPerDay
+            dist_min = kmPerDay*0.2
+            time_func = t_func[d]*ratio         
 
         appliance = user.Appliance(user, n=1, Par_power=Par_P_EV[car], Battery_cap = Battery_cap[car], 
                                 P_var = P_var, w = 1, d_tot = dist_tot,

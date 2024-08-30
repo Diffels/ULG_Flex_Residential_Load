@@ -80,7 +80,7 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
         # Dictionnary containg Time Steps where a departure occurs and associated durations
         departures={}
         # Array containing TS where an arrival occurs
-        # TODO - Not a clever way that arrivals=[]?
+        # TODO Maybe a clever way to do that with vectorized operations
         arrivals=[]
         leave=None
         tot_time_left=0
@@ -95,11 +95,13 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
             elif occupancy[i] == 1 and leave is not None:
                 # Record the departure time and duration in a dict
                 duration = i - leave
-                departures[leave] = [duration]
-                # Record the arrivals TS in an array
-                arrivals.append(i)
-                tot_time_left += duration
-                leave = None
+                # Departures that last less than 10 min are considered to not use EV 
+                if duration >= 10:
+                    departures[leave] = [duration]
+                    # Record the arrivals TS in an array
+                    arrivals.append(i)
+                    tot_time_left += duration
+                    leave = None
             
             
     # --- Main Loop that iterates over the day ---
@@ -133,8 +135,17 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
                         # diminished by half the journey consumption.
                         if E_arrive > SOC_max*battery_cap:
                             E_charge = SOC_max*battery_cap - E_leaving + E_spent/2
-                        
+                        # Control to avoid not enough charge:
+                        # If a long journey occurs and, despite the charge not home, the EV is coming
+                        # home with SOC_i < SOC_min, the charge must be longer. In the worth case, EV comes
+                        # back home with SOC_min.
+                        if E_arrive < SOC_min*battery_cap:
+                            E_charge = SOC_min*battery_cap + E_spent - E_leaving #TODO: correct? 
+
                         # Update Time Series
+                        E_spent-=E_charge
+                        if E_spent < 0:
+                            raise ValueError(f"Error in EV_occ_daily_profile.py: E_spent less than 0 at {i} min.")
                         half_dep = round(i + t_departure/2)
                         EV_refilled[half_dep] = E_charge/battery_cap
                         departures.update({i: E_spent}) # The Energy spent is diminished by E_charge, dict update. 
