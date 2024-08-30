@@ -16,7 +16,7 @@ from read_config import read_config
 from Flexibility import flexibility_window
 from ramp_mobility.EV_run import EV_run
 import time
-
+import random
 def occ_reshape(occ: np.ndarray, ts: float)->np.ndarray:
     '''
     Function that reshape occupancy profile:
@@ -111,13 +111,13 @@ def get_profiles(config, dwelling_compo):
                     df[key] = value
         if pd.notna(config['flex_mode']) : 
             flex_window = flexibility_window(df[config['appliances'].keys()], family.occ_m, config['flex_mode'], flexibility_rate= config['flex_rate'])
-        
-        if config['EV_presence'] == 'Yes':
+        print(config["EV_presence"])
+        if config['EV_presence']/100 >= random.random():
             # Reshaping of occupancy profile 
             occupancy = occ_reshape(family.occ_m, config['ts'])
             # Running EV module
             EV_profile=EV_run(occupancy,config)
-            if i == 0:
+            if 'EVCharging' not in df.columns:
                 df['EVCharging'] =  EV_profile*1000
             else :
                 df['EVCharging'] = df['EVCharging'] + EV_profile['EVCharging']*1000
