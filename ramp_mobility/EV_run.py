@@ -80,6 +80,7 @@ def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict, plot=Tr
         current_dir = os.path.dirname(file_path)
         full_path = os.path.join(current_dir, "EV_plot.svg")
         plt.savefig(full_path)
+        plt.close()
 
     return load_profile  
     

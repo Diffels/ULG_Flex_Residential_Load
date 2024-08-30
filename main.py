@@ -32,4 +32,4 @@ if __name__ == '__main__':
     df.to_excel(file_path)
     
     if config['Plot'] :
-        make_demand_plot(df.index, df, title=f"Average Consumption for {config['nb_Scenarios']} scenarios")
+        make_demand_plot(df.index, df, title=f"Load profile for {config['nb_Scenarios']} households, for {config['nb_days']} days.")

@@ -16,6 +16,7 @@ Main Assumptions:
     for the journey) for the EV to be refiled and charged during this departure.
     4. When a charge occurs not at home (see above), a percentage of the full departure time is taken, stochastically, 
     for the EV to be charged. It's assumed to be at the half of the journey and instantaneous.
+    5. If E_arrive > SOC_max or < SOC_min: 
 
 Inputs: 
 
@@ -35,7 +36,7 @@ Outputs:
 
 
 #TO DO:
-
 # add EV_cons in class user instead of passing argument?
 # profile de l'année par km/an?
 # verif pour tous type de car + usage que c'est bon
+# implement probability for size car and driver usage

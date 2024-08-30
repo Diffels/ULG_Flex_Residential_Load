@@ -24,7 +24,7 @@ def prob_charge_notHome_fun(E_journey, E_leaving):
     r = E_journey/E_leaving # [kWh]/[kWh]
     if r > 1.0: # If journey requires more energy than available, charge mandatory.
         P = 1.0
-    elif r < 0.15: # Short journeys do not require charge.
+    elif r < 0.1: # Short journeys do not require charge.
         P = 0
     else: 
         P = r
@@ -51,7 +51,7 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
     r_ch_notHome = 0.30 # Time ratio of EV charging when not at home from whole departure duration.
     var_ch_notHome = 0.05 # Stochastic variation in charging time ratio defined above.
     var_split = 0.25 # Stochastic variation in Energy split between not home windows.
-    tol_batt_lim = 0.01 # Tolerance according to battery limits when charge/disch.
+    tol_batt_lim = 0.5 # Tolerance according to battery limits when charge/disch.
 
     # EV Battery parameters
     SOC_max = 0.9 
@@ -125,25 +125,27 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
                     E_leaving = SOC_last*battery_cap
                     P_ch_notHome = prob_charge_notHome_fun(E_spent, E_leaving)
                                    
-                    if random.random() < P_ch_notHome:
+                    if random.random() <= P_ch_notHome:
                         t_charge = round(r_ch_notHome*t_departure*random.uniform((1-var_ch_notHome),(1+var_ch_notHome))) # Stochastic charge time [min]
                         E_charge = charger_power / 60 * t_charge * eff # [kWh]
                         E_arrive = E_leaving-E_spent+E_charge
+                        # Control to avoid not enough charge:
+                        # If a long journey occurs and, despite the charge not home, the EV is coming
+                        # home with SOC_i < SOC_min, the charge must be longer. In this specific case, EV comes
+                        # back home with SOC_min.
+                        if E_arrive < SOC_min*battery_cap:
+                            E_charge = SOC_min*battery_cap + E_spent - E_leaving #TODO: correct? 
+
                         # Control to avoid to much charge:
                         # Since the charge is supposed to be at half journey, if after the charge
                         # EV is at SOC_max (ie max. charge occured), then SOC_arrive must be SOC_max
                         # diminished by half the journey consumption.
                         if E_arrive > SOC_max*battery_cap:
                             E_charge = SOC_max*battery_cap - E_leaving + E_spent/2
-                        # Control to avoid not enough charge:
-                        # If a long journey occurs and, despite the charge not home, the EV is coming
-                        # home with SOC_i < SOC_min, the charge must be longer. In the worth case, EV comes
-                        # back home with SOC_min.
-                        if E_arrive < SOC_min*battery_cap:
-                            E_charge = SOC_min*battery_cap + E_spent - E_leaving #TODO: correct? 
 
                         # Update Time Series
                         E_spent-=E_charge
+                        
                         if E_spent < 0:
                             raise ValueError(f"Error in EV_occ_daily_profile.py: E_spent less than 0 at {i} min.")
                         half_dep = round(i + t_departure/2)

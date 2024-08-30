@@ -106,8 +106,7 @@ def get_profiles(config, dwelling_compo):
                     df[key] = value
         if pd.notna(config['flex_mode']) : 
             flex_window = flexibility_window(df[config['appliances'].keys()], family.occ_m, config['flex_mode'], flexibility_rate= config['flex_rate'])
-        print(config["EV_presence"])
-        if True: #config['EV_presence']/100 >= random.random():
+        if config['EV_presence']/100 >= random.random():
             # Reshaping of occupancy profile 
             occupancy = occ_reshape(family.occ_m, config['ts'])
             # Running EV module
