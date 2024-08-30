@@ -19,6 +19,7 @@ if __name__ == '__main__':
     nSim=config['nb_Scenarios']
 
     loads, times, df = get_profiles(config, dwelling_compo)
+    
     print("---- Results ----")
     print("\t Execution time [s]")
     print(f"\t\tMean: {np.mean(times)}; STD: {np.std(times)}")

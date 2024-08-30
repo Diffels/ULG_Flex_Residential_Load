@@ -3,18 +3,27 @@
 | EV module, derived from ramp-mobility |
 |_______________________________________|
 
-This module allows to compute stochastically an EV load profile based on an occupancy profile and predefined parameters (type of the car and driver working statut) for a time horizon of 1 day to 1 year, minute per minute.  
+This module allows to compute stochastically an EV load profile based on an occupancy profile 
+and predefined parameters (type of the car and driver usage) for a time horizon from 1 day to 1 year, 
+minute per minute.  
 
 Main Assumptions: 
 
-1. The charging pattern is 'uncontrolled', ie soon as the EV come back home, it is charge at nominal charger power until fully charged.
-2. Each departure corresponds to a departure with the EV. 
-3. At each departure a probability is fixed (depending on the energy available in EV and the energy required for the journey) for the EV to be refiled and charged during this departure.
-4. When a charge occurs not at home (see above), a percentage of the full departure time is taken, stochastically, for the EV to be charged. It's assumed to be at the half of the journey and instantaneous.
+    1. The charging pattern is 'uncontrolled', ie soon as the EV come back home, it is charge at nominal charger 
+    power until fully charged.
+    2. Each departure corresponds to a departure with the EV. 
+    3. At each departure a probability is fixed (depending on the energy available in EV and the energy required 
+    for the journey) for the EV to be refiled and charged during this departure.
+    4. When a charge occurs not at home (see above), a percentage of the full departure time is taken, stochastically, 
+    for the EV to be charged. It's assumed to be at the half of the journey and instantaneous.
 
 Inputs: 
 
-Size car [x, y, z] defined in .py + expl
+    - Occupancy profile which details if the main driver is at home (1) or not (0) of length N, the number of min 
+    considered in the simulation time horizon. 
+    - Size  of the EV ['small', 'medium', 'large'] which corresponds on different battery capacities defined in 
+    config_init_.py of 37, 60, and 100 kWh. 
+    - Driver usage ['short', 'normal', 'long']
 Type Driver [] defined in +expl
 
 
