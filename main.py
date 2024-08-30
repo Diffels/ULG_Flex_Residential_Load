@@ -30,5 +30,6 @@ if __name__ == '__main__':
 
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Results.xlsx")
     df.to_excel(file_path)
+    
     if config['Plot'] :
         make_demand_plot(df.index, df, title=f"Average Consumption for {config['nb_Scenarios']} scenarios")

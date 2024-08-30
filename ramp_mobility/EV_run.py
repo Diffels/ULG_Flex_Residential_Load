@@ -6,6 +6,7 @@ August 2024
 """
 
 # Import required modules
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -75,8 +76,10 @@ def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict, plot=Tr
         axs[3].legend()
         axs[3].grid(True)
         plt.tight_layout()
-        plt.show()
-
+        file_path = os.path.abspath(__file__)
+        current_dir = os.path.dirname(file_path)
+        full_path = os.path.join(current_dir, "EV_plot.svg")
+        plt.savefig(full_path)
 
     return load_profile  
     
