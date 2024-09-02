@@ -33,5 +33,5 @@ if __name__ == '__main__':
     
     if config['Plot'] :
         make_demand_plot(df.index, df, title=f"Load profile for {config['nb_Scenarios']} households, for {config['nb_days']} days.")
-        df = df/config['nb_Scenarios']
-        make_demand_plot(df.index, df, title=f"Mean Load profile for 1 household, for {config['nb_days']} days.")
+        #df = df/config['nb_Scenarios']
+        #make_demand_plot(df.index, df, title=f"Mean Load profile for 1 household, for {config['nb_days']} days.")

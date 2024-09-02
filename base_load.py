@@ -65,9 +65,10 @@ def get_inputs():
 
                 # EV Parameters
                 'EV_presence': out['EV']['present'],            # If a EV is present or not.
-                'EV_size': out['EV']['size'],                   # EV size:  ['large', 'medium', 'small']
-                'EV_usage': out['EV']['usage'],                 # ['short', 'normal', 'long', (int: km/year)]
-                'EV_charger_power': out['EV']['charger_power'], # Power charger station [kW]         
+                'prob_EV_size': [float(prob) for prob in out['EV']['size'].split(',')],                   # EV size prob:  ['large', 'medium', 'small']
+                'prob_EV_usage': [float(prob) for prob in out['EV']['usage'].split(',')],                 # EV usage prob: ['short', 'normal', 'long']
+                'EV_charger_power': out['EV']['charger_power'], # Power charger station [kW] 
+                'EV_km_per_year': out['EV']['km_per_year']      # Km/y, if 0 does not take into account
                 
             }
     
@@ -76,6 +77,12 @@ def get_inputs():
     else:
         config['Plot'] = False
 
+    if sum(config['prob_EV_size']) != 1: 
+        raise ValueError(f"Probabilities associated to the EV size are incorrect. {config['prob_EV_size']}")
+    if sum(config['prob_EV_usage']) != 1 and config['EV_km_per_year'] == 0: 
+        raise ValueError(f"Probabilities associated to the EV usage are incorrect. {config['prob_EV_usage']}")
+    
+    
     return config, dwelling_compo
 
 
@@ -109,6 +116,11 @@ def get_profiles(config, dwelling_compo):
         if config['EV_presence']/100 >= random.random():
             # Reshaping of occupancy profile 
             occupancy = occ_reshape(family.occ_m, config['ts'])
+            # Determining EV parameter:
+            sizes=['small', 'medium', 'large']
+            config['EV_size'] = np.random.choice(sizes, p=config['prob_EV_size'])
+            usages=['short', 'normal', 'long']
+            config['EV_usage'] =  np.random.choice(usages, p=config['prob_EV_size'])
             # Running EV module
             load_profile=EV_run(occupancy,config)
             EV_profile = pd.DataFrame({'EVCharging':load_profile})

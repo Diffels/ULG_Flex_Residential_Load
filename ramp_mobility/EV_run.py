@@ -38,10 +38,12 @@ def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict, plot=Tr
     year = config['year']
     car = config['EV_size']
     usage = config['EV_usage']
-    charger_pow = config['EV_charger_power'] 
+    charger_pow = config['EV_charger_power']
+    km_per_year = config['EV_km_per_year']
     
-    if not isinstance(usage, int) and usage not in ('short', 'normal', 'long'):
-        raise ValueError(f"Usage of the car is not well defined: {usage} (type:{type(usage)}), expected an int (km/year) or one of ('short', 'normal', 'long').")
+    # If this input is correctly set, it takes into account nb of km/y instead of usage probabilities
+    if km_per_year > 1:
+        usage = int(round(km_per_year))
 
     Driver = config_init_(car, usage, country)
 
@@ -71,7 +73,7 @@ def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict, plot=Tr
         # Plot EV_refilled (assuming they're relevant)
         axs[3].plot(EV_refilled, color='purple', linestyle='--', label='EV Refilled')
         axs[3].set_ylabel('Charging')
-        axs[3].set_xlabel('Time')
+        axs[3].set_xlabel('Time [min]')
         axs[3].set_title('EV Charge while not home')
         axs[3].legend()
         axs[3].grid(True)
