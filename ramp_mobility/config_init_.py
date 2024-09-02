@@ -19,10 +19,15 @@ import os
 def config_init_(car: str, usage: str, country: str)->object:
     '''
     Description
+    Function that initialize the simulation with a bunch of parameters dans constants for Belgium.
+    The user (driver) class contains 3 appliances, each representing a EV linked to a type day. 
+    (weekday, saturday, sunday).
     Inputs:
-        -
+        - car (str): EV size ['small', 'medium', 'large']
+        - usage (str): Driver usage ['short', 'normal', 'long']
+        - country (str): Simulation country, currently only working with 'BE' (Belgium). 
     Output:
-        -
+        - user (obj class User): the User class that represents the main driver for the simulation.  
     '''
                 
     if country != 'BE': raise ValueError("Model is currently only working for Belgium.")

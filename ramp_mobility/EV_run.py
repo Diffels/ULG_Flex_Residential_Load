@@ -19,11 +19,10 @@ from typing import Any
 
 def EV_run(occupancy: np.ndarray[Any, np.dtype[np.bool_]], config: dict, plot=True)-> pd.DataFrame:
     '''
-    Code based on ramp-mobility library that compute stochastic Electrical 
+    Code based on ramp-mobility library that computes stochastic Electrical 
     Vehicle load profile for predefined types of user, on yearly or daily basis.
     The profile is sctochastically linked to an occupancy behaviour in 
-    EV_occ_daily_profile.py and from a stochastic EV consumption given by ramp-mobility
-    in EV_stoch_cons.py. 
+    EV_occ_daily_profile.py and from a stochastic EV consumption given by EV_stoch_cons.py. 
 
     The config variable is a dictionnary containing whole configuration used in the simulation. 
     config = {'nb_days'-'start_day'-'country'-'year'-'car'-'usage'-'charger_power'}

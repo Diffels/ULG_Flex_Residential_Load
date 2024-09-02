@@ -39,15 +39,16 @@ def occ_reshape(occ: np.ndarray, ts: float)->np.ndarray:
     return new_occ
 
 def get_inputs():
-        # Reading the input file in current directory
+    '''
+    Function that reads the Excel file Config.xlsx containing all necessary inputs for the simulation. 
+    '''
+    # Reading the input file in current directory
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Config.xlsx")
     out,config_full = read_config(file_path)
     # Appliances instances definition
     dwelling_compo = []
     for i in range(out['dwelling']['nb_compo']):
         dwelling_compo.append(out['dwelling'][f'member{i+1}'])
-    
-    
 
     '''Create a dictionnary config containing whole simulation configuration'''
     config = {  
@@ -88,11 +89,13 @@ def get_inputs():
 
 def get_profiles(config, dwelling_compo):
     '''
-    [...] Summary [...]
-    Inputs
-        - 
-    Outputs
-        -
+    Function that computes the different load profiles.
+
+    Inputs:
+        - config (dict): dictionnay that contains all the inputs defined in Config.xlsx
+        - dwelling_compo (list): list containing the dwelling composition 
+    
+    It returns the load profiles (dataframe) and the execution time.        
     '''
     times = np.zeros(config['nb_Scenarios'])
 
