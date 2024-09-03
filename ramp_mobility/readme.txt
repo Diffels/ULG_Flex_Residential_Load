@@ -19,6 +19,7 @@ Main Assumptions:
     charge.
     5. The outside battery refuel is defined such that E_come_back_home <= SOC_max - E_spent_half_departure and 
     E_come_back_home >= SOC_min.
+    6. Charger outside home power = vs charger home
 
 Inputs:
 
@@ -42,4 +43,7 @@ Outputs:
 
 # TODO/Improvements
 
-#
+# Faire sous forme de lib python : donner des arguments à une fonction qu'on appelle sous forme .json? 
+# changer puissance de recharge outside home que home!
+# add source for data charger power 3.7, 7.4, 11, 22 ! (test achat)
+# not enough charge outside home i think

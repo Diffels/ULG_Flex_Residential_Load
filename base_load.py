@@ -68,7 +68,7 @@ def get_inputs():
                 'EV_presence': out['EV']['present'],            # If a EV is present or not.
                 'prob_EV_size': [float(prob) for prob in out['EV']['size'].split(',')],                   # EV size prob:  ['large', 'medium', 'small']
                 'prob_EV_usage': [float(prob) for prob in out['EV']['usage'].split(',')],                 # EV usage prob: ['short', 'normal', 'long']
-                'EV_charger_power': out['EV']['charger_power'], # Power charger station [kW] 
+                'prob_EV_charger_power': [float(prob) for prob in out['EV']['charger_power'].split(',')], # Power charger station prob: [3.7, 7.4, 11, 22] (kW) 
                 'EV_km_per_year': out['EV']['km_per_year']      # Km/y, if 0 does not take into account
                 
             }
@@ -82,6 +82,8 @@ def get_inputs():
         raise ValueError(f"Probabilities associated to the EV size are incorrect. {config['prob_EV_size']}")
     if sum(config['prob_EV_usage']) != 1 and config['EV_km_per_year'] == 0: 
         raise ValueError(f"Probabilities associated to the EV usage are incorrect. {config['prob_EV_usage']}")
+    if sum(config['prob_EV_charger_power']) != 1: 
+        raise ValueError(f"Probabilities associated to the charger powers are incorrect. {config['prob_EV_charger_power']}")
     
     
     return config, dwelling_compo
@@ -124,6 +126,8 @@ def get_profiles(config, dwelling_compo):
             config['EV_size'] = np.random.choice(sizes, p=config['prob_EV_size'])
             usages=['short', 'normal', 'long']
             config['EV_usage'] =  np.random.choice(usages, p=config['prob_EV_size'])
+            powers=[3.7, 7.4, 11, 22] #kW
+            config['EV_charger_power'] =  np.random.choice(powers, p=config['prob_EV_charger_power'])
             # Running EV module
             load_profile=EV_run(occupancy,config)
             EV_profile = pd.DataFrame({'EVCharging':load_profile})
