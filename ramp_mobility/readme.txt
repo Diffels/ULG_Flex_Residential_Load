@@ -3,7 +3,7 @@
 |               EV module               | by Noé Diffels, derived from ramp-mobility
 |_______________________________________|
 
-This module stochastically computes an EV load profile based on an occupancy profile and predefined parameters 
+This module computes a stochastic EV load profile based on an occupancy profile and predefined parameters 
 (such as the type of car and driver usage) for a time horizon ranging from 1 day to 1 year, minute by minute.
 
 Main Assumptions:

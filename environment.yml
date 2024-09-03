@@ -1,11 +1,10 @@
-name: ramp_mobility
+name: ULG_flex_residential_load
 
 dependencies:
-  - python=3.7
-  - spyder
+  - python=3.11
   - numpy>=1.10
   - matplotlib>=1.5.1
-  - pandas>= 0.24.0
+  - pandas>=0.24.0
   - pip
   - pip:
     - convertdate
