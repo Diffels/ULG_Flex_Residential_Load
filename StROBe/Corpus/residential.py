@@ -808,9 +808,11 @@ class Equipment(object):
                     P[tl] = self.standby_power
 
                 if self.name == 'TumbleDryer':
+                    print("ok")
                     P = TumbleDryer()
                     Q = np.zeros(nmin+1)
                 if self.name == 'WashingMachine':
+                    print("yeah")
                     P = WashingMachine()
                     Q = np.zeros(nmin+1)
 
