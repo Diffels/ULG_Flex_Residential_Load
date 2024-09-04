@@ -60,7 +60,7 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
     eff = 0.90
 
     # The charge that occurs outside home is not always the same that home charger
-    available_stations=[7.4, 11, 22, 150] # [kW], level 2 and 3 of EV chargers
+    available_stations=[7.4, 11, 22, 50] # [kW], level 2 and 3 of EV chargers,see source in readme.txt
     prob_stations=[0.3, 0.35, 0.3, 0.05]
     station_power = np.random.choice(available_stations, p=prob_stations)
 

@@ -44,11 +44,11 @@ Outputs:
 
 Sources: 
 
-    [1]
+    [1] Falvo, et al. (2014, June) EV charging stations and modes: International standards. In 2014 international 
+    symposium on power electronics, electrical drives, automation and motion (pp. 1134-1139). IEEE.
     [2] 
 
 # TODO/Improvements
 
 # Faire sous forme de lib python : donner des arguments à une fonction qu'on appelle sous forme .json? 
-# add source for data charger power 3.7, 7.4, 11, 22 ! (test achat)
 # not enough charge outside home i think, fun Probability to charge outside jouer avec param
