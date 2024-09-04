@@ -5,6 +5,7 @@ Created on Mon October 07 16:16:10 2013
 @author: Ruben Baetens
 """
 
+from appliances_profiles import WashingMachine, TumbleDryer
 import sys
 import random
 import numpy as np
@@ -804,7 +805,14 @@ class Equipment(object):
                 if on: 
                     P[tl] = self.cycle_power # instead of the average consumption, could be sampled from normal distribution as well
                 else: 
-                    P[tl] = self.standby_power 
+                    P[tl] = self.standby_power
+
+                if self.name == 'TumbleDryer':
+                    P = TumbleDryer()
+                    Q = np.zeros(nmin+1)
+                if self.name == 'WashingMachine':
+                    P = WashingMachine()
+                    Q = np.zeros(nmin+1)
 
             r_eq = {'P':P, 'Q':Q, 'QRad':P*self.frad,'QCon':P*self.fconv}
 
