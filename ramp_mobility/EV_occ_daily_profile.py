@@ -24,10 +24,11 @@ def prob_charge_notHome_fun(E_journey, E_leaving):
     r = E_journey/E_leaving # [kWh]/[kWh]
     if r > 1.0: # If journey requires more energy than available, charge mandatory.
         P = 1.0
-    elif r < 0.1: # Short journeys do not require charge.
+    elif r < 0.05: # Short journeys do not require charge.
         P = 0
     else: 
-        P = r
+        P = 3*r
+    #print(P)
     return P
     
 
@@ -58,6 +59,11 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
     SOC_min = 0.1
     eff = 0.90
 
+    # The charge that occurs outside home is not always the same that home charger
+    available_stations=[7.4, 11, 22, 150] # [kW], level 2 and 3 of EV chargers
+    prob_stations=[0.3, 0.35, 0.3, 0.05]
+    station_power = np.random.choice(available_stations, p=prob_stations)
+
     EV = Driver.App_list[0]
     battery_cap = EV.Battery_cap # [kWh]
     
@@ -72,6 +78,8 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
     E_spent=0
     
     for iteration in range(len(EV_cons)):
+        # For 1 day:
+
         occupancy = full_occupancy[iteration*minPerDay:minPerDay*(iteration+1)]
         SOC_profile = np.full(minPerDay, SOC_beginning) # Time Series of SOC filled with init value
         charging_profile = np.zeros(minPerDay) # Binary Time Series describing when EV is plugged.
@@ -103,17 +111,16 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
                     tot_time_left += duration
                     leave = None
             
-            
     # --- Main Loop that iterates over the day ---
     
         fully_charged=False
-        
         for i in range(1, len(occupancy)):
             if not occupancy[i]: # Not at home
                 if i in departures.keys(): # Event departure
                     fully_charged=False
     
                 # Adding departures E_spent [kWh] to dict according to stochastic ratio [%]
+                    #print("Dep:", departures[i], "-", i)
                     t_departure = departures[i][0]
                     ratio = t_departure/tot_time_left
                     stoch_ratio = round(ratio * random.uniform((1-var_split),(1+var_split)), 2)
@@ -124,17 +131,18 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
                     SOC_last = SOC_profile[i-1]
                     E_leaving = SOC_last*battery_cap
                     P_ch_notHome = prob_charge_notHome_fun(E_spent, E_leaving)
-                                   
+                                
                     if random.random() <= P_ch_notHome:
                         t_charge = round(r_ch_notHome*t_departure*random.uniform((1-var_ch_notHome),(1+var_ch_notHome))) # Stochastic charge time [min]
-                        E_charge = charger_power / 60 * t_charge * eff # [kWh]
+                        E_charge = station_power / 60 * t_charge * eff # [kWh]
                         E_arrive = E_leaving-E_spent+E_charge
+                        
                         # Control to avoid not enough charge:
                         # If a long journey occurs and, despite the charge not home, the EV is coming
                         # home with SOC_i < SOC_min, the charge must be longer. In this specific case, EV comes
                         # back home with SOC_min.
                         if E_arrive < SOC_min*battery_cap:
-                            E_charge = SOC_min*battery_cap + E_spent - E_leaving #TODO: correct? 
+                            E_charge = SOC_min*battery_cap + E_spent - E_leaving
 
                         # Control to avoid to much charge:
                         # Since the charge is supposed to be at half journey, if after the charge
@@ -143,14 +151,15 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
                         if E_arrive > SOC_max*battery_cap:
                             E_charge = SOC_max*battery_cap - E_leaving + E_spent/2
 
-                        # Update Time Series
-                        E_spent-=E_charge
+                        # Update Energy spent, either half the journey, or charging < E_spent/2
+                        E_spent = max(E_spent/2, E_spent-E_charge)
                         
                         if E_spent < 0:
                             raise ValueError(f"Error in EV_occ_daily_profile.py: E_spent less than 0 at {i} min.")
                         half_dep = round(i + t_departure/2)
                         EV_refilled[half_dep] = E_charge/battery_cap
-                        departures.update({i: E_spent}) # The Energy spent is diminished by E_charge, dict update. 
+                        temp_duration = departures[i][0]
+                        departures.update({i: [temp_duration, E_spent]}) # The Energy spent is diminished by E_charge, dict update. 
                         if disp:
                             print(f"A battery re-filled occured between {i} [min] and {i+t_departure} [min] of {round(E_charge,2)} [kWh] (+{round(100*E_charge/battery_cap, 2)}%).")
                         
@@ -181,11 +190,10 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
                         
                 SOC_profile[i] = SOC_i
 
-
         list_SOC_profile[iteration*minPerDay:minPerDay*(iteration+1)]=SOC_profile
         list_charging_profile[iteration*minPerDay:minPerDay*(iteration+1)]=charging_profile
         list_EV_refilled[iteration*minPerDay:minPerDay*(iteration+1)]=EV_refilled
-    
+        
         # Setting up de first SOC of next day.
         SOC_beginning = SOC_profile[-1]
     

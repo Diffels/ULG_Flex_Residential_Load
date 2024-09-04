@@ -18,15 +18,18 @@ if __name__ == '__main__':
 
     nSim=config['nb_Scenarios']
 
-    loads, times, df = get_profiles(config, dwelling_compo)
+    loads, times, df, charge_not_home = get_profiles(config, dwelling_compo)
     
     print("---- Results ----")
-    print("\t Execution time [s]")
-    print(f"\t\tMean: {np.mean(times)}; STD: {np.std(times)}")
-    print("\t Total load per week [kWh]")
-    print(f"\t\tMean: {np.mean(loads)}; STD: {np.std(loads)}")
-    print("\t Total load per year [MWh]")
-    print(f"\t\tMean: {np.mean(loads*52/1e3)}; STD: {np.std(loads*52/1e3)}")
+    print("Time Horizon: ", config["nb_days"], "day(s).")
+    print("Execution time [s]")
+    print(f"\tMean: {np.mean(times)}")
+    print("Total load per week [kWh]")
+    print(f"\tMean: {round(np.mean(loads), 2)}; STD: {np.std(loads)}")
+    print("Total load per year [MWh]")
+    print(f"\tMean: {round(np.mean(loads*52/1e3), 2)}; STD: {np.std(loads*52/1e3)}")
+    print("Number of charge outside home when EV:")
+    print(f"\tMean: {round(np.mean(charge_not_home[charge_not_home!=0]))}")
 
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Results.xlsx")
     df.to_excel(file_path)

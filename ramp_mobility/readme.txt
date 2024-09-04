@@ -19,7 +19,9 @@ Main Assumptions:
     charge.
     5. The outside battery refuel is defined such that E_come_back_home <= SOC_max - E_spent_half_departure and 
     E_come_back_home >= SOC_min.
-    6. Charger outside home power = vs charger home
+    6. Outside charging event are associated with a nominal power of the charging station, which is not always the 
+    same that home charger. home_charger=[3.7, 7.4, 11, 22] (kW) with associated probabilities defined in Config.xlsx, 
+                        and outside_charger=[7.4, 11, 22, 150] (kW) with associated probabilities=[0.3, 0.35, 0.3, 0.05].
 
 Inputs:
 
@@ -40,10 +42,13 @@ Outputs:
     profile can be merged and used for further flexibility analysis.
 
 
+Sources: 
+
+    [1]
+    [2] 
 
 # TODO/Improvements
 
 # Faire sous forme de lib python : donner des arguments à une fonction qu'on appelle sous forme .json? 
-# changer puissance de recharge outside home que home!
 # add source for data charger power 3.7, 7.4, 11, 22 ! (test achat)
-# not enough charge outside home i think
+# not enough charge outside home i think, fun Probability to charge outside jouer avec param

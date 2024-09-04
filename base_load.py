@@ -99,6 +99,7 @@ def get_profiles(config, dwelling_compo):
     
     It returns the load profiles (dataframe) and the execution time.        
     '''
+    recharge_not_home=np.zeros(config['nb_Scenarios'])
     times = np.zeros(config['nb_Scenarios'])
 
     nminutes = config['nb_days'] * 1440 + 1
@@ -129,7 +130,8 @@ def get_profiles(config, dwelling_compo):
             powers=[3.7, 7.4, 11, 22] #kW
             config['EV_charger_power'] =  np.random.choice(powers, p=config['prob_EV_charger_power'])
             # Running EV module
-            load_profile=EV_run(occupancy,config)
+            load_profile, n_charge_not_home =EV_run(occupancy,config)
+            recharge_not_home[i] = n_charge_not_home
             EV_profile = pd.DataFrame({'EVCharging':load_profile})
             EV_flex = pd.DataFrame({'EVCharging':load_profile, 'Occupancy':occupancy})
 
@@ -153,7 +155,7 @@ def get_profiles(config, dwelling_compo):
 
     df = index_to_datetime(df, config['year'],config['ts'])
     
-    return average_total_elec.sum()/60/1000, times, df
+    return average_total_elec.sum()/60/1000, times, df, recharge_not_home
 
 import datetime as dt
 
