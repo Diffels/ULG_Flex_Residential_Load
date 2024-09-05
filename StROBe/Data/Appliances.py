@@ -1,4 +1,4 @@
-from appliances_profiles import TumbleDryer, WashingMachine
+from appliances_programs import TumbleDryer, WashingMachine
 set_appliances = \
 {
   "FridgeFreezer": {

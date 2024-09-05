@@ -700,6 +700,12 @@ class Equipment(object):
             Simulate non-cycling appliances based on occupancy and the 
             Markov state-space model of Richardson et al.
             '''
+            # If TumbleDryer or WashingMachine, Program taken into account instead power cycle
+            prog = self.name == 'TumbleDryer' or self.name == 'WashingMachine'
+            p_ts = 0
+            if prog:
+                program = self.program
+
             # parameters ######################################################
 
             len_cycle = self.cycle_length # cycle length for this appliance
@@ -736,15 +742,23 @@ class Equipment(object):
             to = -1 # time counter for occupancy (10min)
             tl = -1 # time counter for load (1min)
             left = [-1 for i in range(numOcc)] # time counter for appliance duration per occupant -> start as not used: -1
-            
+
             for doy, step in itertools.product(range(nday), range(nbin)): # loop over 10min steps in year
                 dow_i = dow[doy] # day of week
-                to += 1
+                to += 1  
                 # occupancy in 10 min, but for each occupancy step simulate 10 individual minutes for the loads.
                 for run in range(10):
                     tl += 1
+                    
                     if any(l > 0 for l in left): # if any occupant was using the appliance (there was time left[i]>0)
-                        P[tl] += self.cycle_power  # assign power used when appliance is working
+                        if prog:
+                            if p_ts < len(program):
+                                P[tl] += program[p_ts]  # use power from the program at this point in time
+                                p_ts+=1
+                            else: # program ended
+                                P[tl] += self.standby_power # assign stand-by power
+                        else:
+                            P[tl] += self.cycle_power  # assign power used when appliance is working
                         n_eq_dur += 1 # add to counter for number of minutes used in year
                     else: # if nobody was using it
                         P[tl] += self.standby_power # assign stand-by power
@@ -758,6 +772,9 @@ class Equipment(object):
                             # check if there is a state change in the appliance for this occupant
                             if random.random() < prob[i][to] * self.cal: # if random number below calibration factor cal* probability of activity: start appliance
                                 left[i] = random.gauss(len_cycle, len_cycle/10) # start a cycle of random  duration for this occupant
+                                if prog:
+                                    program = self.program
+                                    p_ts=0
 
                             
             r_eq = {'P':P, 'Q':Q, 'QRad':P*self.frad, 'QCon':P*self.fconv,}

@@ -13,8 +13,14 @@ import numpy as np
 '''
 Description file
 
-Comment ça fonctionne? 
-family.simulate in base_load.py -> residential.py
+How it works? 
+
+family.simulate in load_profiles.py calls residential.py where it iterates over all appliances and set
+power = nominal power if on state, otherwise 1 W (off state). 
+
+In residential.py in stochastic_load(): lines 698-776, a condition if appliance.name == 'TumbleDryer' or 'WashingMachine' (prog, boolean variable)
+is set up in order to record a program that variates with time instead of a nominal power.
+
 lignes 810-815, si self.name == 'TumbleDryer' ou 'WashingMachine'
 on appelle les fonctions et on retourne P en fonction des programmes dans appliances_profiles.py
 
@@ -22,6 +28,7 @@ does not work
 '''
 
 def TumbleDryer(P=[0.5, 0.5]):
+    
     '''
     Source:
     '''
@@ -35,7 +42,7 @@ def TumbleDryer(P=[0.5, 0.5]):
         cs = CubicSpline(P1_x, P1_y)
         P1_x_interp = np.linspace(min(P1_x), max(P1_x), len(P1_y)*5)
         P1_y_interp = cs(P1_x_interp)
-        return (P1_x_interp, P1_y_interp)
+        return P1_y_interp
     else:
         # Program 4
         P4_x = np.array(range(5, 115, 5))
@@ -43,7 +50,7 @@ def TumbleDryer(P=[0.5, 0.5]):
         cs = CubicSpline(P4_x, P4_y)
         P4_x_interp = np.linspace(min(P4_x), max(P4_x), len(P4_y)*5)
         P4_y_interp = cs(P4_x_interp)
-        return (P4_x_interp, P4_y_interp)    
+        return P4_y_interp    
 
 
 def WashingMachine(P=[0.5, 0.5]):
@@ -59,7 +66,7 @@ def WashingMachine(P=[0.5, 0.5]):
         cs = CubicSpline(P1_x, P1_y)
         P1_x_interp = np.linspace(min(P1_x), max(P1_x), len(P1_y)*5)
         P1_y_interp = cs(P1_x_interp)
-        return (P1_x_interp, P1_y_interp)
+        return P1_y_interp
     else:
         # Program 4
         P4_x = np.array(range(5, 220, 5))
@@ -68,7 +75,7 @@ def WashingMachine(P=[0.5, 0.5]):
         P4_x_interp = np.linspace(min(P4_x), max(P4_x), len(P4_y)*5)
         P4_y_interp = cs(P4_x_interp)
         P4_y_interp = np.clip(P4_y_interp, a_min=1, a_max=None)
-        return (P4_x_interp, P4_y_interp)      
+        return P4_y_interp     
 
 
 def PLOT_TumbleDryer():

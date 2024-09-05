@@ -52,6 +52,7 @@ Sources:
     symposium on power electronics, electrical drives, automation and motion (pp. 1134-1139). IEEE.
     [2] 
 
+
 # TODO/Improvements
 
 # not enough charge outside home i think, fun Probability to charge outside jouer avec param
