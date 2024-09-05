@@ -9,7 +9,6 @@ August 2024
 import os
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from Household_mod import Household_mod
 from plots import make_demand_plot
 from read_config import read_config
@@ -175,11 +174,11 @@ def index_to_datetime(df, year, ts):
     df10min = df.resample(str(ts)+'min').mean()
     return df10min
 
-def simulate(file_path):
+def simulate(file_name):
     '''
     Simulation with a .json file.
     Input:
-        - .json file path describing the configuration of the simulation
+        - file (str): .json file name describing the configuration of the simulation
     Outputs: 
         - df (pd.DataFrame): Dataframe containing the results, ie for each time step, the consumption of each
         appliance.
@@ -187,7 +186,13 @@ def simulate(file_path):
         - loads (np.ndarray): Total load during the simulation.
 
     '''
-    with open(file_path, 'r') as file:
+    try:
+        file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), file_name)
+    except FileNotFoundError as e:
+        print(e)
+
+
+    with open(file_path, 'r', encoding="utf-8") as file: # Avoid "é" issues
         config = json.load(file)  # Load the JSON data into a Python dictionary
 
     dwelling_compo = []
@@ -201,8 +206,10 @@ def simulate(file_path):
     if sum(config['prob_EV_charger_power']) != 1: 
         raise ValueError(f"Probabilities associated to the charger powers are incorrect. {config['prob_EV_charger_power']}")
     
-    get_profiles(config, dwelling_compo)
-    pass
+    loads, times, df = get_profiles(config, dwelling_compo)
+    file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Results.xlsx")
+    df.to_excel(file_path)
+    make_demand_plot(df.index, df, title=f"Load profile for {config['nb_Scenarios']} households, for {config['nb_days']} days.")
 
 if __name__ == '__main__':
     simulate("Config.json")

@@ -1,7 +1,7 @@
 {  
-    "nb_days": 3,
+    "nb_days": 30,
     "year": 2024,                     
-    "nb_Scenarios": 1,                
+    "nb_Scenarios": 100,                
     "ts": 10,                         
     "start_day": 1,
     "country": "BE",
@@ -25,11 +25,11 @@
     "dwelling_type": "Appartement",
     "dwelling_number":	1,
     "dwelling_nb_compo":4,
-    "dwelling_member1":	"Aléatoire",
-    "dwelling_member2":	"Aléatoire",
-    "dwelling_member3":	"Aléatoire",
-    "dwelling_member4":	"Aléatoire",
-    "dwelling_member5":	"Aléatoire"
+    "dwelling_member1":	"Random",
+    "dwelling_member2":	"Random",
+    "dwelling_member3":	"Random",
+    "dwelling_member4":	"Random",
+    "dwelling_member5":	"Random"
 
 
 }

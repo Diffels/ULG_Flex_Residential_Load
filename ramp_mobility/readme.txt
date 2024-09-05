@@ -52,3 +52,4 @@ Sources:
 
 # Faire sous forme de lib python : donner des arguments à une fonction qu'on appelle sous forme .json? 
 # not enough charge outside home i think, fun Probability to charge outside jouer avec param
+# why some huge exec time, other not?
