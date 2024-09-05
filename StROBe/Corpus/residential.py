@@ -5,7 +5,7 @@ Created on Mon October 07 16:16:10 2013
 @author: Ruben Baetens
 """
 
-from appliances_profiles import WashingMachine, TumbleDryer
+#from appliances_profiles import WashingMachine, TumbleDryer
 import sys
 import random
 import numpy as np
@@ -807,14 +807,15 @@ class Equipment(object):
                 else: 
                     P[tl] = self.standby_power
 
-                if self.name == 'TumbleDryer':
-                    print("ok")
-                    P = TumbleDryer()
-                    Q = np.zeros(nmin+1)
-                if self.name == 'WashingMachine':
-                    print("yeah")
-                    P = WashingMachine()
-                    Q = np.zeros(nmin+1)
+                # Modif here? 
+                # if self.name == 'TumbleDryer':
+                #     print("ok")
+                #     P = TumbleDryer()
+                #     Q = np.zeros(nmin+1)
+                # if self.name == 'WashingMachine':
+                #     print("yeah")
+                #     P = WashingMachine()
+                #     Q = np.zeros(nmin+1)
 
             r_eq = {'P':P, 'Q':Q, 'QRad':P*self.frad,'QCon':P*self.fconv}
 

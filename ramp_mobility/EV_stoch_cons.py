@@ -8,7 +8,7 @@ August 2024
 # Import required libraries
 import numpy as np
 import random 
-from ramp_mobility.initialise import yearly_pattern 
+from ramp_mobility.config_init_ import yearly_pattern 
 
 def EV_stoch_cons(Driver: object, nb_days: int, year=2024, country='BE', start_day=0)->set:
     '''

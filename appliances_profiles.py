@@ -13,6 +13,12 @@ import numpy as np
 '''
 Description file
 
+Comment ça fonctionne? 
+family.simulate in base_load.py -> residential.py
+lignes 810-815, si self.name == 'TumbleDryer' ou 'WashingMachine'
+on appelle les fonctions et on retourne P en fonction des programmes dans appliances_profiles.py
+
+does not work
 '''
 
 def TumbleDryer(plot=True):

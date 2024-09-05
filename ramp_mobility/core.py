@@ -3,8 +3,6 @@
 #%% Import required libraries
 import numpy as np
 import numpy.ma as ma
-import pandas as pd
-import copy
 
 #%% Definition of Python classes that constitute the model architecture
 '''

@@ -9,4 +9,6 @@ dependencies:
   - pip:
     - convertdate
     - holidays
+    - datetime
+    - calendar
  

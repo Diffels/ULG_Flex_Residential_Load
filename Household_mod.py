@@ -22,6 +22,8 @@ from StROBe.Data.Households import households
 from constant import special_appliances
 import itertools
 import pandas as pd
+
+
 class Household_mod(Household):  
     def parameterize(self, **kwargs):
         '''
@@ -84,7 +86,7 @@ class Household_mod(Household):
                     obj = Equipment(**set_appliances[app])
                     if 'selected_appliances' in kwargs:
                         if set_appliances[app]['name'] in kwargs['selected_appliances'] :
-                            owner = kwargs['selected_appliances'][app]/100 >= random.random()
+                            owner = float(kwargs['selected_appliances'][app]) >= random.random()
                         elif set_appliances[app]['name'] not in special_appliances : 
                             owner = obj.owner >= random.random()
                     else :

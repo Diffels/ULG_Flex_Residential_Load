@@ -12,7 +12,9 @@ August 2024
 from ramp_mobility.core import User
 import numpy as np
 import pandas as pd
-import copy
+import datetime
+import calendar
+import holidays 
 import os
 
 
@@ -158,4 +160,58 @@ def config_init_(car: str, usage: str, country: str)->object:
     user.App_list = App
     return user
     
+def yearly_pattern(country, year):
+    '''
+    Definition of a yearly pattern of weekends and weekdays, in case some appliances have specific wd/we behaviour
+    ''' 
+    # Number of days to add at the beginning and the end of the simulation to avoid special cases at the beginning and at the end
+    dummy_days = 1 # Modified from former file, previously set to 5.
+
+    #Yearly behaviour pattern
+    first_day = datetime.date(year, 1, 1).strftime("%A")
+    
+    if calendar.isleap(year):
+        year_len = 366
+    else: 
+        year_len = 365
+        
+    Year_behaviour = np.zeros(year_len)
+    
+    dict_year = {'Monday'   : [5, 6], 
+                 'Tuesday'  : [4, 5], 
+                 'Wednesday': [3, 4],
+                 'Thursday' : [2, 3], 
+                 'Friday'   : [1, 2], 
+                 'Saturday' : [0, 1], 
+                 'Sunday'   : [6, 0]}
+      
+    for d in dict_year.keys():
+        if first_day == d:
+            Year_behaviour[dict_year[d][0]:year_len:7] = 1
+            Year_behaviour[dict_year[d][1]:year_len:7] = 2
+    
+    # Adding Vacation days to the Yearly pattern
+
+    if country == 'EL': 
+        country = 'GR'
+    elif country == 'FR':
+        country = 'FRA'
+        
+    try:
+        holidays_country = list(holidays.CountryHoliday(country, years = year).keys())
+    except KeyError: 
+        c_error = {'LV':'LT', 'RO':'BG'}
+        print(f"[WARNING] Due to a known issue, the version of the holidays package you automatically installed is the 0.10.2, not containing {country}. Please refer to 'https://github.com/dr-prodigy/python-holidays/issues/338' for an explanation on how to install holidays 0.10.3. Otherwise, holidays from {c_error[country]} will be used.")
+        country = c_error[country]
+        holidays_country = list(holidays.CountryHoliday(country, years = year).keys())
+
+    for i in range(len(holidays_country)):
+        day_of_year = holidays_country[i].timetuple().tm_yday
+        Year_behaviour[day_of_year-1] = 2
+    
+    dummy_days_array = np.zeros(dummy_days) 
+    
+    Year_behaviour = np.hstack((dummy_days_array, Year_behaviour, dummy_days_array))
+    
+    return(Year_behaviour, dummy_days)
 
