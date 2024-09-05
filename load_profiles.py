@@ -174,25 +174,18 @@ def index_to_datetime(df, year, ts):
     df10min = df.resample(str(ts)+'min').mean()
     return df10min
 
-def simulate(file_name):
+def simulate(file_path):
     '''
     Simulation with a .json file.
     Input:
-        - file (str): .json file name describing the configuration of the simulation
+        - file (str): .json file path describing the configuration of the simulation
     Outputs: 
         - df (pd.DataFrame): Dataframe containing the results, ie for each time step, the consumption of each
         appliance.
         - times (np.ndarray): Execution time for each simulation.
         - loads (np.ndarray): Total load during the simulation.
-
     '''
-    try:
-        file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), file_name)
-    except FileNotFoundError as e:
-        print(e)
-
-
-    with open(file_path, 'r', encoding="utf-8") as file: # Avoid "é" issues
+    with open(file_path, 'r', encoding="utf-8") as file: # 'utf-8' to avoid "é" issues
         config = json.load(file)  # Load the JSON data into a Python dictionary
 
     dwelling_compo = []
@@ -212,4 +205,4 @@ def simulate(file_name):
     make_demand_plot(df.index, df, title=f"Load profile for {config['nb_Scenarios']} households, for {config['nb_days']} days.")
 
 if __name__ == '__main__':
-    simulate("Config.json")
+    simulate(r"C:\Users\noedi\OneDrive - Universite de Liege\Ordi - Bureau\Ordi - ULG\Job - Load Shifting\ULG_Flex_Residential_Load\Config.json")

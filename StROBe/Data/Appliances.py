@@ -1,3 +1,4 @@
+from appliances_profiles import TumbleDryer, WashingMachine
 set_appliances = \
 {
   "FridgeFreezer": {
@@ -358,7 +359,8 @@ set_appliances = \
     "consumption": 313.820216429956, 
     "delay": 0, 
     "activity": "drying", 
-    "type": "appliance"
+    "type": "appliance",
+    "program":TumbleDryer(P=[0.5,0.5])
   }, 
   "DishWasher": {
     "frad": 0.0, 
@@ -413,7 +415,8 @@ set_appliances = \
     "consumption": 191.041292123096, 
     "delay": 0, 
     "activity": "washing", 
-    "type": "appliance"
+    "type": "appliance",
+    "program":WashingMachine(P=[0.5, 0.5])
   }, 
   "Oven": {
     "frad": 0.17, 
