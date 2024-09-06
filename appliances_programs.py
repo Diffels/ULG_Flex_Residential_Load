@@ -34,6 +34,7 @@ def TumbleDryer(P=[0.5, 0.5]):
     '''
     
     rand_choice = np.random.choice([1, 4], p=P)
+    print(rand_choice)
 
     if rand_choice == 1:
         # Program 1

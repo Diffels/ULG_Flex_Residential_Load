@@ -23,6 +23,8 @@ sys.path.append("..")
 from Data.Households import households
 from Data.Appliances import set_appliances
 
+from appliances_programs import TumbleDryer, WashingMachine
+
 class Household(object):
     '''
     The Household class is the main class of StROBe, defining the
@@ -703,12 +705,22 @@ class Equipment(object):
             # If TumbleDryer or WashingMachine, Program taken into account instead power cycle
             prog = self.name == 'TumbleDryer' or self.name == 'WashingMachine'
             p_ts = 0
+            
             if prog:
-                program = self.program
+                print(self.name)
+                if self.name == 'TumbleDryer':
+                    program = TumbleDryer()
+                elif self.name == 'WashingMachine':
+                    program = WashingMachine()
+                else:
+                    raise ValueError(f"Currently only TumbleDryer and WashingMachine programs encoded. Given: {self.name}")
 
             # parameters ######################################################
 
-            len_cycle = self.cycle_length # cycle length for this appliance
+            if prog:
+                len_cycle = len(program)
+            else:
+                len_cycle = self.cycle_length # cycle length for this appliance
             act = self.activity  # activity linked to the use of this appliance
             numOcc=len(clustersList) # number of differenc active occupants >12y
 
@@ -773,8 +785,15 @@ class Equipment(object):
                             if random.random() < prob[i][to] * self.cal: # if random number below calibration factor cal* probability of activity: start appliance
                                 left[i] = random.gauss(len_cycle, len_cycle/10) # start a cycle of random  duration for this occupant
                                 if prog:
-                                    program = self.program
+                                    if self.name == 'TumbleDryer':
+                                        program = TumbleDryer()
+                                    elif self.name == 'WashingMachine':
+                                        program = WashingMachine()
+                                    else:
+                                        raise ValueError(f"Currently only TumbleDryer and WashingMachine programs encoded. Given: {self.name}")
+                                    print(p_ts)
                                     p_ts=0
+                                    len_cycle = len(program)
 
                             
             r_eq = {'P':P, 'Q':Q, 'QRad':P*self.frad, 'QCon':P*self.fconv,}
