@@ -30,11 +30,11 @@ does not work
 def TumbleDryer(P=[0.5, 0.5]):
     
     '''
-    Source:
+    Source: Mazidi, M., Malakhatka, E., Steen, D., & Wallbaum, H. (2023). Real-time rolling-horizon energy 
+    management of public laundries: A case study in HSB living lab. Energy Conversion and Management: X, 20, 100462.
     '''
     
     rand_choice = np.random.choice([1, 4], p=P)
-    print(rand_choice)
 
     if rand_choice == 1:
         # Program 1
@@ -53,10 +53,10 @@ def TumbleDryer(P=[0.5, 0.5]):
         P4_y_interp = cs(P4_x_interp)
         return P4_y_interp    
 
-
 def WashingMachine(P=[0.5, 0.5]):
     '''
-    Source:
+    Source: Mazidi, M., Malakhatka, E., Steen, D., & Wallbaum, H. (2023). Real-time rolling-horizon energy 
+    management of public laundries: A case study in HSB living lab. Energy Conversion and Management: X, 20, 100462.
     '''
     rand_choice = np.random.choice([1, 4], p=P)
 
@@ -77,6 +77,34 @@ def WashingMachine(P=[0.5, 0.5]):
         P4_y_interp = cs(P4_x_interp)
         P4_y_interp = np.clip(P4_y_interp, a_min=1, a_max=None)
         return P4_y_interp     
+
+def DishWasher(P=[0.5, 0.5]):
+    '''
+    Source: Issi, F., & Kaplan, O. (2018). The determination of load profiles and power consumptions of 
+    home appliances. Energies, 11(3), 607.
+    '''
+    rand_choice = np.random.choice([1, 4], p=P)
+
+    if rand_choice == 1:
+        # Program 1 - 55°C economy program
+        P1_x = np.array(range(180)) # 3h program, in min
+        water_heating_1 = [2250]*8 # 2250 W for 8 min
+        water_heating_2 = [2250]*16 # 2250 W for 16 min
+        P1_y = np.full(len(P1_x), 1) # Off-state -> 1W
+        P1_y[16:24] = water_heating_1
+        P1_y[130:146] = water_heating_2
+        return P1_y
+    else:
+        # Program 4 - 65°C program
+        P4_x = np.array(range(60)) # 1h program, in min
+        water_heating_1 = [2250]*20
+        water_heating_2 = [2250]*3
+        water_heating_3 = [2250]*8
+        P4_y = np.full(len(P4_x), 1)
+        P4_y[5:25] = water_heating_1
+        P4_y[32:35] = water_heating_2
+        P4_y[37:45] = water_heating_3
+        return P4_y
 
 
 def PLOT_TumbleDryer():
@@ -107,7 +135,6 @@ def PLOT_TumbleDryer():
     plt.title('Cubic Spline Interpolation of Tumble Dryer Power Consumption')
     plt.show()
 
-
 def PLOT_WashingMachine():
     # Program 1
     P1_x = np.array(range(5, 145, 5))
@@ -137,6 +164,39 @@ def PLOT_WashingMachine():
     plt.title('Cubic Spline Interpolation of Washing Machine Power Consumption')
     plt.show()
 
+def PLOT_DishWasher():
+    # Program 1 - 55°C economy program
+    P1_x = np.array(range(180)) # 3h program, in min
+    water_heating_1 = [2250]*8 # 2250 W for 8 min
+    water_heating_2 = [2250]*16 # 2250 W for 16 min
+    P1_y = np.full(len(P1_x), 1) # Off-state -> 1W
+    P1_y[16:24] = water_heating_1
+    P1_y[130:146] = water_heating_2
+    
+    # Program 4 - 65°C program
+    P4_x = np.array(range(60)) # 1h program, in min
+    water_heating_1 = [2250]*20
+    water_heating_2 = [2250]*3
+    water_heating_3 = [2250]*8
+    P4_y = np.full(len(P4_x), 1)
+    P4_y[5:25] = water_heating_1
+    P4_y[32:35] = water_heating_2
+    P4_y[37:45] = water_heating_3
+    
+
+    # Plot the results
+    plt.plot(P1_x, P1_y, '-', label='Program 1 (55°C - eco)', color='tab:orange')  
+    plt.plot(P4_x, P4_y, '-', label='Program 4 (65°C)', color='tab:blue', alpha=0.7)
+
+    plt.xlabel('Time [min]')
+    plt.ylabel('Power [W]')
+    plt.grid(True)
+    plt.legend()
+    plt.title('DishWasher Power Consumption')
+    plt.show()
+
+
 if __name__ == '__main__':
-    PLOT_TumbleDryer()
-    PLOT_WashingMachine()
+    # PLOT_TumbleDryer()
+    # PLOT_WashingMachine()
+    PLOT_DishWasher()

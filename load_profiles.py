@@ -124,7 +124,8 @@ def get_profiles(config, dwelling_compo):
                     df[key] = value
         if pd.notna(config['flex_mode']) : 
             flex_window = flexibility_window(df[config['appliances'].keys()], family.occ_m, config['flex_mode'], flexibility_rate= config['flex_rate'])
-        if config['EV_presence'] >= random.random():
+        r = random.random()
+        if config['EV_presence'] >= r:
             # Reshaping of occupancy profile 
             occupancy = occ_reshape(family.occ_m, config['ts'])
             # Determining EV parameter:

@@ -5,7 +5,6 @@ Created on Mon October 07 16:16:10 2013
 @author: Ruben Baetens
 """
 
-#from appliances_profiles import WashingMachine, TumbleDryer
 import sys
 import random
 import numpy as np
@@ -23,7 +22,7 @@ sys.path.append("..")
 from Data.Households import households
 from Data.Appliances import set_appliances
 
-from appliances_programs import TumbleDryer, WashingMachine
+from appliances_programs import TumbleDryer, WashingMachine, DishWasher
 
 class Household(object):
     '''
@@ -703,17 +702,22 @@ class Equipment(object):
             Markov state-space model of Richardson et al.
             '''
             # If TumbleDryer or WashingMachine, Program taken into account instead power cycle
-            prog = self.name == 'TumbleDryer' or self.name == 'WashingMachine'
+            prog = self.name == 'TumbleDryer' or self.name == 'WashingMachine' or self.name == 'DishWasher'
             p_ts = 0
-            
+
+            # To avoid using program variations, uncomment following line:
+            #prog=False
+
             if prog:
-                print(self.name)
+                #print(self.name)
                 if self.name == 'TumbleDryer':
                     program = TumbleDryer()
                 elif self.name == 'WashingMachine':
                     program = WashingMachine()
+                elif self.name == 'DishWasher':
+                    program = DishWasher()
                 else:
-                    raise ValueError(f"Currently only TumbleDryer and WashingMachine programs encoded. Given: {self.name}")
+                    raise ValueError(f"Currently only TumbleDryer, WashingMachine, and DishWasher programs encoded. Given: {self.name}")
 
             # parameters ######################################################
 
@@ -789,9 +793,10 @@ class Equipment(object):
                                         program = TumbleDryer()
                                     elif self.name == 'WashingMachine':
                                         program = WashingMachine()
+                                    elif self.name == 'DishWasher':
+                                        program = DishWasher()
                                     else:
-                                        raise ValueError(f"Currently only TumbleDryer and WashingMachine programs encoded. Given: {self.name}")
-                                    print(p_ts)
+                                        raise ValueError(f"Currently only TumbleDryer, WashingMachine, and DishWasher programs encoded. Given: {self.name}")
                                     p_ts=0
                                     len_cycle = len(program)
 
