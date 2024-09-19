@@ -1,7 +1,7 @@
- _______________________________________
-|                                       |
-|               EV module               | by Noé Diffels, derived from ramp-mobility
-|_______________________________________|
+ __________________________
+|                           |
+|         EV module         |    by Noé Diffels, derived from ramp-mobility
+|___________________________|
 
 This module computes a stochastic EV load profile based on an occupancy profile and predefined parameters 
 (such as the type of EV and driver usage) for a time horizon ranging from 1 day to 1 year, minute by minute.
@@ -9,7 +9,7 @@ This module computes a stochastic EV load profile based on an occupancy profile 
 Main Assumptions:
 
     1. The charging pattern is 'uncontrolled,' i.e., as soon as the EV comes back home, it charges at the nominal 
-    charger power (which is an input) until fully charged.
+    charger power (which is defined according to a probability array among 4 fixed values) until fully charged.
     2. Each departure in the occupancy profile corresponds to a departure with the EV, except for departures that 
     last less than 10 minutes, which are not considered as EV usage.
     3. At each EV departure, a probability is computed (depending on the energy available in the EV and the energy 
@@ -34,7 +34,8 @@ Inputs:
     'Short' corresponds to smaller journeys (30% of 50 km and 30% of 60 km), and 'long' doubles the distances (200% of 
     50 km and 200% of 60 km). All of these distances are then stochastically varied for each journey to simulate daily 
     variations.
-    - Another way for the user to variates distance EV runs during the simulation is to set a yearly number of 
+
+    Another way for the user to variates distance EV runs during the simulation is to set a yearly number of 
     kilometers in Config.xlsx. This number would be split in a daily basis and then will be associated to a 
     stochastic number of kilometers per day. If EV_km_per_year <= 0, it does not take into account this input
     and probabilities of driver usage is used.
@@ -55,5 +56,6 @@ Sources:
 
 # TODO/Improvements
 
-# not enough charge outside home i think, fun Probability to charge outside jouer avec param
-# why some huge exec time, other not?
+# There is not enough charge outside home according to me, sensitivity analysis of parameters in probability 
+function.
+# Why some huge execution time, other not?

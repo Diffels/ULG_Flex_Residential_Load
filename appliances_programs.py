@@ -4,27 +4,24 @@
     
 September 2024
 """
+# NOT OPTIMAL BECAUSE PROFILES ARE COMPUTED AT EACH CALL!
 
-#Not OPTIMAL BECAUSE IT ALWAYS COMPUTE BOTH PROGRAM AT EACH CALL
 from scipy.interpolate import CubicSpline
 import matplotlib.pyplot as plt
 import numpy as np
 
 '''
-Description file
+How does it works? 
 
-How it works? 
+Base case:
+family.simulate() in load_profiles.py calls residential.py where it iterates over all appliances and set
+power = nominal power (on state), otherwise 1 W (off state). 
 
-family.simulate in load_profiles.py calls residential.py where it iterates over all appliances and set
-power = nominal power if on state, otherwise 1 W (off state). 
-
-In residential.py in stochastic_load(): lines 698-776, a condition if appliance.name == 'TumbleDryer' or 'WashingMachine' (prog, boolean variable)
-is set up in order to record a program that variates with time instead of a nominal power.
-
-lignes 810-815, si self.name == 'TumbleDryer' ou 'WashingMachine'
-on appelle les fonctions et on retourne P en fonction des programmes dans appliances_profiles.py
-
-does not work
+Improvement: changes in residential.py lines 699-811: stochastic_load()
+In the file residential.py, line 705, if self.name == 'TumbleDryer' ou 'WashingMachine' or 'DishWasher' (prog, boolean variable)
+is set up in order to record a program that variates with time (defined in this file) instead of a nominal power.
+Then, each time this type of appliance is turned on, associated function defined in this file is called,
+generating a profile among 2 choices according to a predefined probability.
 '''
 
 def TumbleDryer(P=[0.5, 0.5]):
@@ -197,6 +194,6 @@ def PLOT_DishWasher():
 
 
 if __name__ == '__main__':
-    # PLOT_TumbleDryer()
-    # PLOT_WashingMachine()
+    PLOT_TumbleDryer()
+    PLOT_WashingMachine()
     PLOT_DishWasher()
