@@ -21,3 +21,9 @@ python run.py
 ```
 
 Modify the inputs in the `Config.json` file, further information in `Config-README.txt` file. 
+
+If you want to remove the environement, use:
+
+```
+conda remove -n ULG_flex_residential_load --all
+```
