@@ -10,9 +10,9 @@ in the project directory.
 
 Activate the simulation you just created with: 
 
-'''
+```
 conda activate ULG_flex_residential_load
-'''
+```
 
 Run the simulation using: 
 
