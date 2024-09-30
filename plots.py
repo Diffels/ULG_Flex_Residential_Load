@@ -46,6 +46,16 @@ def make_demand_plot(idx,data,PV = None,title='Consumption', NB_Scenario = 1):
                 fillcolor='rgba(255, 255, 126,0.5)',
                 mode='none'               # this remove the lines
                           ))        
+    if 'Heating' in cols:
+        fig.add_trace(go.Scatter(
+            name='Heating',
+            x=idx,
+            y=data.loc[idx, 'Heating'],
+            stackgroup='one',
+            fillcolor='rgba(255, 0, 0, 0.5)', 
+            mode='none'  
+            ))
+        cols.remove('Heating')  # Remove 'Heating' after adding it to the plot
 
     for key in cols:
         fig.add_trace(go.Scatter(

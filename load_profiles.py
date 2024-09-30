@@ -13,6 +13,7 @@ from Household_mod import Household_mod
 from plots import make_demand_plot
 from Flexibility import flexibility_window
 from ramp_mobility.EV_run import EV_run
+from Space_heating import theoretical_model_dynamic
 import time
 import random
 import json
@@ -68,6 +69,14 @@ def get_profiles(config, dwelling_compo):
         family.simulate(year = config['year'], ndays = config['nb_days']) # print in com
         
         df = pd.DataFrame(family.app_consumption)
+
+        #---Space Heating -------------
+        shsetting_data = family.sh_day
+        heating_consumption = theoretical_model_dynamic(shsetting_data, config['nb_days'], config['nb_Scenarios'])*1000 #return an array with powers in kW every 10min, times 1000 to have the results in Watts
+        heating_cons_duplicate = [elem for elem in heating_consumption for _ in range(10)]   # To go from 10 to 1 min time step
+        heating_cons_duplicate = pd.Series(heating_cons_duplicate)/4                         #divided by the COP of conventional heat pump 
+        df['Heating'] = df.get('Heating', 0) + heating_cons_duplicate
+        #------------------------------
 
         if pd.notna(config['flex_mode']) : 
             flex_window = flexibility_window(df[config['appliances'].keys()], family.occ_m, config['flex_mode'], flexibility_rate= config['flex_rate'])
