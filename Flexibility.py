@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@author: ?
+@author: duchmax
     
 August 2024
 """

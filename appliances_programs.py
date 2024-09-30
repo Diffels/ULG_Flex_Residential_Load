@@ -22,6 +22,8 @@ In the file residential.py, line 705, if self.name == 'TumbleDryer' ou 'WashingM
 is set up in order to record a program that variates with time (defined in this file) instead of a nominal power.
 Then, each time this type of appliance is turned on, associated function defined in this file is called,
 generating a profile among 2 choices according to a predefined probability.
+
+Run this file to see plots of the programs. 
 '''
 
 def TumbleDryer(P=[0.5, 0.5]):

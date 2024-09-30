@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-@author: ?
+@author: duchmax
+
+Imported from Strobe lib. 
     
 August 2024
 """

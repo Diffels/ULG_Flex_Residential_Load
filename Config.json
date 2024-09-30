@@ -1,13 +1,14 @@
 {  
     "nb_days": 30,
-    "year": 2024,                     
-    "nb_Scenarios": 100,                
-    "ts": 10,                         
+    "year": 2024,
+    "country": "BE",                     
+    "nb_households": 2,                
     "start_day": 1,
-    "country": "BE",
     "flex_mode": null,               
     "flex_rate": 4,
-    "Plot":true,               
+    "plot":true,
+    "plot_ts": 10,                         
+               
 
     "appliances": {
         "WashingMachine": 0.65,
@@ -22,13 +23,10 @@
     "prob_EV_charger_power": [0.25, 0.4, 0.25, 0.1], 
     "EV_km_per_year": 0,
     
-    "dwelling_type": "Appartement",
-    "dwelling_number":	1,
     "dwelling_nb_compo":4,
     "dwelling_member1":	"Random",
     "dwelling_member2":	"Random",
     "dwelling_member3":	"Random",
     "dwelling_member4":	"Random",
     "dwelling_member5":	"Random"
-
 }

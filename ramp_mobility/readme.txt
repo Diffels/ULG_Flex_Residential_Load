@@ -56,6 +56,4 @@ Sources:
 
 # TODO/Improvements
 
-# There is not enough charge outside home according to me, sensitivity analysis of parameters in probability 
-function.
 # Why some huge execution time, other not?

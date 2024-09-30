@@ -9,6 +9,8 @@ dependencies:
   - pip:
     - convertdate
     - holidays
-    - datetime
-    - calendar
+    - plotly
+    - scipy
+    - openpyxl
+
  

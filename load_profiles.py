@@ -11,12 +11,13 @@ import pandas as pd
 import numpy as np
 from Household_mod import Household_mod
 from plots import make_demand_plot
-from read_config import read_config
 from Flexibility import flexibility_window
 from ramp_mobility.EV_run import EV_run
 import time
 import random
 import json
+import datetime as dt
+
 
 
 def occ_reshape(occ: np.ndarray, ts: float)->np.ndarray:
@@ -40,57 +41,6 @@ def occ_reshape(occ: np.ndarray, ts: float)->np.ndarray:
     
     return new_occ
 
-def get_inputs():
-    '''
-    Function that reads the Excel file Config.xlsx containing all necessary inputs for the simulation. 
-    '''
-    # Reading the input file in current directory
-    file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Config.xlsx")
-    out,config_full = read_config(file_path)
-    # Appliances instances definition
-    dwelling_compo = []
-    for i in range(out['dwelling']['nb_compo']):
-        dwelling_compo.append(out['dwelling'][f'member{i+1}'])
-
-    '''Create a dictionnary config containing whole simulation configuration'''
-    config = {  
-                'nb_days': out['sim']['ndays'],                 # Number of days to simulate
-                'year': out['sim']['year'],                     # Year of the simulation
-                'nb_Scenarios': out['sim']['N'],                # Number of Scenarios
-                'ts': out['sim']['ts'],                         # Time Step resolution [min]
-                'start_day': out['sim']['start_day'],           # Starting day of the simulation (/!\ start_day+nb_days<365 or 366 if leap.)
-                'country': out['sim']['country'],               # Associated country
-
-                'appliances': out['equipment'],                 #
-
-                'flex_mode': out['flex']['type'],               #
-                'flex_rate': out['flex']['rate'],               #
-
-                # EV Parameters
-                'EV_presence': float(out['EV']['present']),            # If a EV is present or not.
-                'prob_EV_size': [float(prob) for prob in out['EV']['size'].split(',')],                   # EV size prob:  ['large', 'medium', 'small']
-                'prob_EV_usage': [float(prob) for prob in out['EV']['usage'].split(',')],                 # EV usage prob: ['short', 'normal', 'long']
-                'prob_EV_charger_power': [float(prob) for prob in out['EV']['charger_power'].split(',')], # Power charger station prob: [3.7, 7.4, 11, 22] (kW) 
-                'EV_km_per_year': out['EV']['km_per_year']      # Km/y, if 0 does not take into account
-                
-            }
-    
-    if out['plt']['plot'] == "True":
-        config['Plot'] =True
-    else:
-        config['Plot'] = False
-
-    if sum(config['prob_EV_size']) != 1: 
-        raise ValueError(f"Probabilities associated to the EV size are incorrect. {config['prob_EV_size']}")
-    if sum(config['prob_EV_usage']) != 1 and config['EV_km_per_year'] == 0: 
-        raise ValueError(f"Probabilities associated to the EV usage are incorrect. {config['prob_EV_usage']}")
-    if sum(config['prob_EV_charger_power']) != 1: 
-        raise ValueError(f"Probabilities associated to the charger powers are incorrect. {config['prob_EV_charger_power']}")
-    
-    
-    return config, dwelling_compo
-
-
 def get_profiles(config, dwelling_compo):
     '''
     Function that computes the different load profiles.
@@ -105,11 +55,11 @@ def get_profiles(config, dwelling_compo):
         - times (np.ndarray): Execution time for each simulation.
         - loads (np.ndarray): Total load during the simulation.
     '''
-    times = np.zeros(config['nb_Scenarios'])
+    times = np.zeros(config['nb_households'])
 
     nminutes = config['nb_days'] * 1440 + 1
-    P = np.zeros((config['nb_Scenarios'], nminutes))
-    for i in range(config['nb_Scenarios']):
+    P = np.zeros((config['nb_households'], nminutes))
+    for i in range(config['nb_households']):
         start_time = time.time()
         family = Household_mod(f"Scenario {i}",members = dwelling_compo, selected_appliances = config['appliances']) # print put in com 
         #family = Household_mod(f"Scenario {i}")
@@ -127,7 +77,7 @@ def get_profiles(config, dwelling_compo):
         r = random.random()
         if config['EV_presence'] >= r:
             # Reshaping of occupancy profile 
-            occupancy = occ_reshape(family.occ_m, config['ts'])
+            occupancy = occ_reshape(family.occ_m, config['plot_ts'])
             # Determining EV parameter:
             sizes=['small', 'medium', 'large']
             config['EV_size'] = np.random.choice(sizes, p=config['prob_EV_size'])
@@ -145,25 +95,24 @@ def get_profiles(config, dwelling_compo):
             else :
                 df['EVCharging'] = df['EVCharging'] + EV_profile['EVCharging']*1000
         
+        
         P[i,:] = family.P
         end_time = time.time()
         execution_time = end_time - start_time
         times[i] = execution_time
-        print(f"Simulation {i+1}/{config['nb_Scenarios']} is done. Execution time: {execution_time} s.") 
+        print(f"Simulation {i+1}/{config['nb_households']} is done. Execution time: {execution_time} s.") 
 
     P = np.array(P)
     
     total_elec = np.sum(P)
-    average_total_elec = total_elec/config['nb_Scenarios']
+    average_total_elec = total_elec/config['nb_households']
     loads=average_total_elec.sum()/60/1000
     
-    #df = df/config['nb_Scenarios']
+    #df = df/config['nb_households']
 
-    df = index_to_datetime(df, config['year'],config['ts'])
+    df = index_to_datetime(df, config['year'],config['plot_ts'])
     
     return loads, times, df
-
-import datetime as dt
 
 def index_to_datetime(df, year, ts):
     init_date = dt.datetime(year, 1,1,0,0)
@@ -175,16 +124,15 @@ def index_to_datetime(df, year, ts):
     df10min = df.resample(str(ts)+'min').mean()
     return df10min
 
-def simulate(file_path):
+def simulate(file_path, disp=True):
     '''
     Simulation with a .json file.
     Input:
-        - file (str): .json file path describing the configuration of the simulation
+        - file (str): .json file path describing the configuration of the simulation.
+        - disp (bool): Displaying informations about the simulation. 
     Outputs: 
         - df (pd.DataFrame): Dataframe containing the results, ie for each time step, the consumption of each
         appliance.
-        - times (np.ndarray): Execution time for each simulation.
-        - loads (np.ndarray): Total load during the simulation.
     '''
     with open(file_path, 'r', encoding="utf-8") as file: # 'utf-8' to avoid "é" issues
         config = json.load(file)  # Load the JSON data into a Python dictionary
@@ -203,7 +151,14 @@ def simulate(file_path):
     loads, times, df = get_profiles(config, dwelling_compo)
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Results.xlsx")
     df.to_excel(file_path)
-    make_demand_plot(df.index, df, title=f"Load profile for {config['nb_Scenarios']} households, for {config['nb_days']} days.")
-
-if __name__ == '__main__':
-    simulate(r"C:\Users\noedi\OneDrive - Universite de Liege\Ordi - Bureau\Ordi - ULG\Job - Load Shifting\ULG_Flex_Residential_Load\Config.json")
+    
+    if disp: 
+        print("---- Results ----")
+        print("Time Horizon: ", config["nb_days"], "day(s).")
+        print("Execution time [s]")
+        print(f"\tMean: {np.mean(times)}")
+        print("Total load [kWh]")
+        print(f"\tMean: {round(np.mean(loads), 2)}; STD: {np.std(loads)}")
+    
+    if config['plot']:
+        make_demand_plot(df.index, df, title=f"Load profile for {config['nb_households']} households, for {config['nb_days']} days.")
