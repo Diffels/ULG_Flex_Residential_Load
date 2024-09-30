@@ -1,4 +1,4 @@
-## READ ME
+## ULG Residential Flexible Load 
 
 Install predefined environement with conda: 
 

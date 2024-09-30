@@ -31,13 +31,7 @@ def make_demand_plot(idx,data,PV = None,title='Consumption', NB_Scenario = 1):
     Plotly figure.
 
     '''
-    StaticLoad_pres = [col for col in StaticLoad if col in data.columns]
-    # Modification noedi
-    # data['Base Load'] = data[StaticLoad_pres].sum(axis=1)
-    data=data.copy()
-    data.loc[:, 'Base Load'] = data[StaticLoad_pres].sum(axis=1)
-    data= data.drop(columns=StaticLoad_pres)
-
+    
     fig = go.Figure()
     cols = data.columns.tolist()
     if 'BatteryGeneration' in cols:

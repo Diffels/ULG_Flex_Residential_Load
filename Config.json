@@ -9,7 +9,6 @@
     "plot":true,
     "plot_ts": 10,                         
                
-
     "appliances": {
         "WashingMachine": 0.65,
         "TumbleDryer": 0.6,

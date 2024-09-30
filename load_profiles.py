@@ -17,6 +17,8 @@ import time
 import random
 import json
 import datetime as dt
+import xarray as xr
+from constant import StaticLoad
 
 
 
@@ -64,14 +66,9 @@ def get_profiles(config, dwelling_compo):
         family = Household_mod(f"Scenario {i}",members = dwelling_compo, selected_appliances = config['appliances']) # print put in com 
         #family = Household_mod(f"Scenario {i}")
         family.simulate(year = config['year'], ndays = config['nb_days']) # print in com
-        if i == 0:
-            df = pd.DataFrame(family.app_consumption)           
-        else : 
-            for key, value in family.app_consumption.items():
-                if key in df.columns:
-                    df[key] += value
-                else :
-                    df[key] = value
+        
+        df = pd.DataFrame(family.app_consumption)
+
         if pd.notna(config['flex_mode']) : 
             flex_window = flexibility_window(df[config['appliances'].keys()], family.occ_m, config['flex_mode'], flexibility_rate= config['flex_rate'])
         r = random.random()
@@ -102,6 +99,19 @@ def get_profiles(config, dwelling_compo):
         times[i] = execution_time
         print(f"Simulation {i+1}/{config['nb_households']} is done. Execution time: {execution_time} s.") 
 
+        df = index_to_datetime(df, config['year'],config['plot_ts'])
+        StaticLoad_pres = [col for col in StaticLoad if col in df.columns]
+        data=df.copy()
+        data.loc[:, 'Base Load'] = data[StaticLoad_pres].sum(axis=1)
+        data= data.drop(columns=StaticLoad_pres)
+
+        data_array = xr.DataArray(data, dims=['index', 'columns'], coords={'columns': data.columns}) 
+        if i == 0 :
+            dataset =  xr.Dataset({f'House {i}': data_array})
+        else :
+            dataset[f'House {i}'] = data_array
+    dataset.coords['index'] = data.index
+
     P = np.array(P)
     
     total_elec = np.sum(P)
@@ -112,7 +122,7 @@ def get_profiles(config, dwelling_compo):
 
     df = index_to_datetime(df, config['year'],config['plot_ts'])
     
-    return loads, times, df
+    return loads, times, dataset
 
 def index_to_datetime(df, year, ts):
     init_date = dt.datetime(year, 1,1,0,0)
@@ -148,10 +158,18 @@ def simulate(file_path, disp=True):
     if sum(config['prob_EV_charger_power']) != 1: 
         raise ValueError(f"Probabilities associated to the charger powers are incorrect. {config['prob_EV_charger_power']}")
     
-    loads, times, df = get_profiles(config, dwelling_compo)
+    loads, times, dataset = get_profiles(config, dwelling_compo)
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Results.xlsx")
-    df.to_excel(file_path)
-    
+    with pd.ExcelWriter(file_path) as writer:
+        for idx in dataset.data_vars:
+            subset = dataset[idx].to_pandas()
+            subset.to_excel(writer, sheet_name=idx)
+    df = pd.DataFrame(0, index= range(0,len(dataset['index'].values)), columns=dataset['columns'].values)
+    for var in dataset.data_vars :
+        data_var = dataset[var].to_pandas()  
+        df += data_var.fillna(0)
+    df = df.set_index(dataset['index'].values)
+
     if disp: 
         print("---- Results ----")
         print("Time Horizon: ", config["nb_days"], "day(s).")
