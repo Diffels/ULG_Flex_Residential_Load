@@ -6,9 +6,9 @@ import os
 import random
 from datetime import datetime
 
-space_heating_dir = os.path.dirname(os.path.realpath(__file__)) # Trouver le chemin du fichier Space_heating.py
+space_heating_dir = os.path.dirname(os.path.realpath(__file__)) # Find the path to the 'Space_heating.py' file
 
-# Créer un chemin absolu vers le fichier Excel 'Meteo2022_Liege.xlsx'
+# Create an absolute path to the Excel file 'Meteo2022_Liege.xlsx'
 meteo_path = os.path.join(space_heating_dir, 'Meteo2022_Liege.xlsx')
 
 # import xlsxwriter
@@ -26,15 +26,14 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
     initial_guess = [19,10,10,10] #for T_in; T_wall; T_roof; T_ground
 
     k_air = 0.024
-    k_polystyrene = 0.042 #W / m.K    #internet = 0.028-0.040
+    k_polystyrene = 0.042 # W / m.K    #internet = 0.028-0.040
     k_laine_roche = 0.035             #internet = 0.030-0.045
     k_liege = 0.039                   #internet = 0.035-0.045
     k_brique = 0.72                   #internet = 0.84
     k_beton = 0.6
     
-    #récupère les surfaces des murs et du toit
+    # Retrieve the surface areas of the walls and roof
     Volume = house['Volume (m^3)']
-    #récupère les surfaces des murs et du toit
     A_walls = house['Wall surface (m²)']
     
     A_windows_N = house['Northern windows surface (m^2)']
@@ -47,62 +46,54 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
     A_roof = house['Ground surface (m^2)']
     A_ground = A_roof
 
-    if house['Year of construction'] == '70-80' :  #in List_70
+    if house['Year of construction'] == '70-80' :  # Building constructed in the seventies
         e_beton = 0.3
 
         U_walls = k_beton / e_beton  # W/m^2 K
-        U_windows = 6  # simple vitrage
+        U_windows = 6  # simple glazing
         U_roof = 2
         U_ground = 0.3
 
-    elif house['Year of construction'] == '80-2000' : # in List_80_2000:
+    elif house['Year of construction'] == '80-2000' : 
         e_polystyrene = 0.05
         e_beton = 0.19
         e_brique = 0.08
         e_air = 0.03
 
         U_walls = 1 / ((e_beton / k_beton) + (e_polystyrene / k_polystyrene) + (e_air / k_air) + (e_brique / k_brique))
-        U_windows = 6  # simple vitrage
+        U_windows = 6  # simple glazing
         U_roof = 2
         U_ground = 0.3
 
-    elif house['Year of construction'] == '2000-2020' : # in List_2000_2020:
+    elif house['Year of construction'] == '2000-2020' : 
         e_laine_roche = 0.1
         e_beton = 0.19
         e_brique = 0.08
         e_air = 0.03
 
         U_walls = 1 / ((e_beton / k_beton) + (e_laine_roche / k_laine_roche) + (e_air / k_air) + (e_brique / k_brique))
-        U_windows = 3  # double vitrage
+        U_windows = 3  # double glazing
         U_roof = 2
         U_ground = 0.3
 
-    elif house['Year of construction'] == 'after 2020' : # in List_2020_now:
+    elif house['Year of construction'] == 'after 2020' : 
         e_liege = 0.2
         e_beton = 0.19
         e_brique = 0.08
         e_air = 0.03
 
         U_walls = 1 / ((e_beton / k_beton) + (e_liege / k_liege) + (e_air / k_air) + (e_brique / k_brique))
-        U_windows = 2  # super double vitrage
+        U_windows = 2  # super double glazing
         U_roof = 2
         U_ground = 0.3
     
-    # #dans la formule (conduction) Q = K*(T_in-T_out), on peut déjà déterminer K
-    # K = (A_walls*U_walls) + (A_windows*U_windows) + (A_roof*U_roof)
     
-    P_nom = 8000 #DETERMINING THE NOMINAL POWER : 8 kW pour une PAC classique (entre 4 et 15kW normalement)
+    P_nom = 8000 # DETERMINING THE NOMINAL POWER: 8 kW for a standard heat pump (typically between 4 and 15 kW thermal), then it will be adjusted with the COP
     
-    #En revanche pour déterminer T_out, ça dépend des jours, des heures... on va donc itérer
-    #sur toute l'année.
-    months = ['jan', 'FEB', 'mar', 'APR', 'MAY', 'jun', 'jul', 'AUG', 'sep', 'oct', 'nov', 'DEC']
-    
-    hours = generate_numbers_as_strings(24)
-    
-    P_irradiation = irradiation(A_windows_N,A_windows_E,A_windows_S,A_windows_W, sim_start_day, sim_ndays)
+    P_irradiation = irradiation(A_windows_N,A_windows_E,A_windows_S,A_windows_W, sim_start_day, sim_ndays) # Total irradiations that the buildings receives  
     
     T_hours = temperature_tri(sim_start_day, sim_ndays)
-    T_10minutes = [temp for temp in T_hours for _ in range(6)]  # duplique chaque case de T_hours par 6 
+    T_10minutes = [temp for temp in T_hours for _ in range(6)]  # Duplicate each cell of T_hours by 6
 
     Q_TU = np.zeros(sim_ndays*24*6)
     all_T_in = np.zeros(sim_ndays*24*6)
@@ -111,7 +102,7 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
     indice_10min = 0
 
     for day in range(sim_ndays):
-        for hour in range(24):  # Chaque jour a 24 heures
+        for hour in range(24):  
             for p in range(6):
 
                 T_out = T_10minutes[indice_10min]
@@ -127,49 +118,48 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
                     cp_air= 1005 #J/(kg.Kelvin)
                     m_a = Volume * rho_air
 
-                    #isolant :
+                    # insulation :
                     cp_polystyrene = 1210  # polystyrene, expanded - Extruded (R-12) Table A.3 p906 heat transfer book  #internet = 1000
                     rho_polystyrene = 55   # polystyrene, expanded - Extruded (R-12) Table A.3 p906 heat transfer book   #internet = 15-30
                     cp_laine_roche = 900   #J/kg K #internet
-                    rho_laine_roche = 28   # kg/m^3    #internet = 10-28 --> laine de verre et 25-150 --> laine de roche #internet
+                    rho_laine_roche = 28   # kg/m^3    # internet values: 10-28 for glass wool and 25-150 for rock wool # sourced from the internet
                     cp_liege = 1800        #internet = 1600-1900
                     rho_liege = 120        #internet = 65-180
 
-                    #matériaux construction :
+                    # Construction materials:
                     cp_beton = 840          #internet = 880
                     rho_beton = 2600        #internet = 2400
-                    rho_beton_armee = 3000  #internet = 2302 + ou - 23
+                    rho_beton_armee = 3000  #internet = 2302 + or - 23
                     cp_brique = 835         #internet = 840
                     rho_brique = 1920       #internet = 1500-1800
 
-                    #autres paramètres :
-                    ICF = 6 # = coefficient de fuite d'air du bâtiment: si ICF plus faible signifie une enveloppe de bâtiment plus étanche à l'air, ce qui réduit les pertes de chaleur par infiltration/exfiltration d'air.
-                    phi = 0.5 #terme permettant de savoir à quel point la capacité est accessible sur une journée
+                    # other coefficient :
+                    ICF = 6 # ICF is a coefficient that represents how much the room is filled with stuff (tables, chairs...) compared to an empty room
+                    phi = 0.5 # Term that indicates how accessible the capacity is over a day
 
-                    T_out_moyen = 10 #[°C] durant l'année 2022
-                    T_in_wanted = 19 #[°C]
-                    v_wind_moyen = 3.5 #[m/s]
+                    T_out_moyen = 10 # [°C] during the year 2022
+                    v_wind_moyen = 3.5 # [m/s]
 
 
                     if house['Year of construction'] == '70-80':
                         e_beton = 0.3
 
-                        # Calcul du taux d'infiltration (ACH) :
+                        # Calculation of the infiltration rate (ACH):
                         k1 = 0.1
-                        k2 = 0.023  #valeurs de k1, k2 et k3 pour un batiment vieux, très mal isolé
+                        k2 = 0.023  # Values of k1, k2, and k3 for an old, poorly insulated building
                         k3 = 0.07
-                        ACH = 0.4 #k1 + (k2 * (T_set[indice_10min] - T_out_moyen)) + (k3 * v_wind_moyen)
+                        ACH = 0.4 # or  ACH = k1 + (k2 * (T_set[indice_10min] - T_out_moyen)) + (k3 * v_wind_moyen)
 
-                        # Calcul des capacités :
+                        # Calculation of capacities:
                         C_wall = cp_beton * rho_beton * e_beton  # J/(K.m^2)    #660000
                         C_roof = 100000  # J/(K.m^2)
-                        C_ground = cp_beton * rho_beton_armee * e_beton  # (J/K.m^2)  #valeur calculée pour dalle de 30 cm de béton armé
+                        C_ground = cp_beton * rho_beton_armee * e_beton  # (J/K.m²)  # value calculated for a 30 cm reinforced concrete slab
 
-                        # Calcul de theta :
+                        # Calculation of theta :
                         R_tot = e_beton / k_beton
                         e_d = C_wall/(2*cp_beton*rho_beton)
                         R_d = e_d/k_beton
-                        theta = R_d/R_tot   # theta petit si bien isolé par l'extérieur
+                        theta = R_d/R_tot   # Theta small if well insulated from the outside
 
                     elif house['Year of construction'] == '80-2000' :
                         e_beton = 0.19
@@ -180,21 +170,20 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
 
                         e_beton_armee = 0.3
 
-                        # Calcul du taux d'infiltration (ACH) :
                         k1 = 0.1
-                        k2 = 0.023  # valeurs de k1, k2 et k3 pour un batiment vieux, très mal isolé
+                        k2 = 0.023  
                         k3 = 0.07
-                        ACH = 0.4 #k1 + (k2 * (T_set[indice_10min] - T_out_moyen)) + (k3 * v_wind_moyen)
+                        ACH = 0.4 
 
-                        # Calcul des capacités :
+                        # Calculation of capacities:
                         C_wall = (cp_brique * rho_brique * e_brique) + (cp_air * rho_air * e_air) + (cp_polystyrene * rho_polystyrene * e_polystyrene) + (cp_beton * rho_beton * e_beton)
                         C_roof = 100000  # J/(K.m^2)
                         C_ground = cp_beton * rho_beton_armee * e_beton_armee  # (J/K.m^2)  #valeur calculée pour dalle de 30 cm de béton armé
 
-                        # Calcul de theta :
+                        # Calculation of theta :
                         R_tot = (e_beton / k_beton) + (e_polystyrene / k_polystyrene) + (e_brique / k_brique)
                         R_d = (e_beton / (2*k_beton)) + (e_polystyrene / (2*k_polystyrene)) + (e_brique / (2*k_brique))
-                        theta = R_d/R_tot # theta petit si bien isolé par l'extérieur
+                        theta = R_d/R_tot 
 
                     elif house['Year of construction'] == '2000-2020' :
                         e_beton = 0.19
@@ -204,21 +193,20 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
 
                         e_beton_armee = 0.3
 
-                        # Calcul du taux d'infiltration (ACH) :
+                        
                         k1 = 0.1
-                        k2 = 0.017  # valeurs de k1, k2 et k3 pour un batiment normalement isolé
+                        k2 = 0.017  
                         k3 = 0.049
                         ACH = k1 + (k2 * (T_set[indice_10min] - T_out_moyen)) + (k3 * v_wind_moyen)
 
-                        # Calcul des capacités :
+                        
                         C_wall = (cp_brique * rho_brique * e_brique) + (cp_air * rho_air * e_air) + (cp_laine_roche * rho_laine_roche * e_laine_roche) + (cp_beton * rho_beton * e_beton)
                         C_roof = 100000  # J/(K.m^2)
-                        C_ground = cp_beton * rho_beton_armee * e_beton_armee  # (J/K.m^2)  #valeur calculée pour dalle de 30 cm de béton armé
+                        C_ground = cp_beton * rho_beton_armee * e_beton_armee  # (J/K.m^2)  
 
-                        # Calcul de theta :
                         R_tot = (e_beton / k_beton) + (e_laine_roche / k_laine_roche) + (e_brique / k_brique)
                         R_d = (e_beton / (2 * k_beton)) + (e_laine_roche  / (2 * k_laine_roche)) + (e_brique / (2 * k_brique))
-                        theta = R_d / R_tot  # theta petit si bien isolé par l'extérieur
+                        theta = R_d / R_tot  
 
                     elif house['Year of construction'] == 'after 2020' :
                         e_beton = 0.19
@@ -228,44 +216,39 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
 
                         e_beton_armee = 0.3
 
-                        # Calcul du taux d'infiltration (ACH) :
                         k1 = 0.1
-                        k2 = 0.011  # valeurs de k1, k2 et k3 pour un batiment récent, très très bien isolé
+                        k2 = 0.011
                         k3 = 0.034
                         ACH = k1 + (k2 * (T_set[indice_10min] - T_out_moyen)) + (k3 * v_wind_moyen)
 
-                        # Calcul des capacités :
                         C_wall = (cp_brique * rho_brique * e_brique) + (cp_air * rho_air * e_air) + (cp_liege * rho_liege * e_liege) + (cp_beton * rho_beton * e_beton)
                         C_roof = 100000  # J/(K.m^2)
-                        C_ground = cp_beton * rho_beton_armee * e_beton_armee  # (J/K.m^2)  #valeur calculée pour dalle de 30 cm de béton armé
+                        C_ground = cp_beton * rho_beton_armee * e_beton_armee  # (J/K.m^2)
 
-                        # Calcul de theta :
                         R_tot = (e_beton / k_beton) + (e_liege / k_liege) + (e_brique / k_brique)
                         R_d = (e_beton / (2 * k_beton)) + (e_liege / (2 * k_liege)) + (e_brique / (2 * k_brique))
-                        theta = R_d / R_tot  # theta petit si bien isolé par l'extérieur
+                        theta = R_d / R_tot
 
 
                     T_in,T_wall,T_roof,T_ground = T
                     
-                    Q_infiltration = (ACH/6)*Volume*rho_air*cp_air*(T_in - T_out)/600 #divide by 600 (10minutes) and divide ACH by 6 because it s air change per hour
+                    Q_infiltration = (ACH/6)*Volume*rho_air*cp_air*(T_in - T_out)/600 # divide by 600 (10minutes) and divide ACH by 6 because it s air change per hour
                     
                     Q_cond_ground = (U_roof / theta) * A_roof * (T_ground - T_in)
                     Q_cond_walls = (U_walls / theta) * A_walls * (T_wall - T_in)
                     Q_cond_windows = U_windows*A_windows*(T_out-T_in)
                     
-                    if(abs(T_set[indice_10min]-T_in) <= 0.5):  #if we are close enough to set point temperature
+                    if(abs(T_set[indice_10min]-T_in) <= 0.5):  # if we are close enough to set point temperature
                         Q_TU= 0
                     else : 
-                        Q_TU = (max(min(C*(T_set[indice_10min]-T_in)*P_nom,P_nom),0)) #C=0.5 to decrease the reaction of the thermal unit’s power
-                    #PQ on considère plus les pertes de chaleur via le toit ? Car il ya une équation diff rien que pour le toit
+                        Q_TU = (max(min(C*(T_set[indice_10min]-T_in)*P_nom,P_nom),0)) # C=0.5 to decrease the reaction of the thermal unit’s power
                     
                     Q_cond = Q_cond_ground+Q_cond_walls+Q_cond_windows
-                    # regarder pour avoir aux alentours de 3 m/s pour notre jour sans soleil --> jour à considérer est le 25/01/2022 avec moyenne de vent de 1.175 m/s
                     
-                    dTin_dt = (1/(m_a*cp_air*ICF))*(Q_TU #thermal unit
-                                                    + P_in_addition # Lights,people,appliances & irradiation
-                                                    + Q_cond #conduction
-                                                    - Q_infiltration) #exfiltration
+                    dTin_dt = (1/(m_a*cp_air*ICF))*(Q_TU # thermal unit
+                                                    + P_in_addition # Irradiation & (Lights, people, appliances) - these last three are not considered here
+                                                    + Q_cond # conduction
+                                                    - Q_infiltration) # exfiltration
                         
                     dTwall_dt = (((U_walls/(1-theta))*A_walls*(T_out-T_wall))-((U_walls/theta)*A_walls*(T_wall-T_in)))/(phi*C_wall*A_walls)
 
@@ -278,23 +261,23 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
             #-------------------------------------------------
 
 
-                time_points = [0,600] #for each second during 10 min
+                time_points = [0,600] # for each second during 10 min
                 
                 sol = solve_ivp(equation, time_points, initial_guess)
-                T_in_start = sol.y[0][0] #temperature at the start of the hour
-                T_in_end = sol.y[0][-1] #temperature at the end of the hour
+                T_in_start = sol.y[0][0] # temperature at the start of the hour
+                T_in_end = sol.y[0][-1] # temperature at the end of the hour
                 
                 T_wall_start = sol.y[1][0]
                 T_wall_end = sol.y[1][-1]
-                initial_guess[0] = T_in_end  #condition limite pour pour T_in pour l'heure suivante
+                initial_guess[0] = T_in_end  # Boundary condition for T_in for the next hour
                 
                 T_in = (T_in_start+T_in_end)/2
                 T_wall = (T_wall_start+T_wall_end)/2
                 
-                if(abs(T_set[indice_10min]-T_in) <= 0.5):  #if we are close enough to set point temperature
+                if(abs(T_set[indice_10min]-T_in) <= 0.5):  # If we are close enough to set point temperature
                     Q_TU[indice_10min]= 0
                 else : 
-                    Q_TU[indice_10min] = (max(min(C*(T_set[indice_10min]-T_in)*P_nom,P_nom),0))/1000 #en kW
+                    Q_TU[indice_10min] = (max(min(C*(T_set[indice_10min]-T_in)*P_nom,P_nom),0))/1000 # In kW
 
                 if(Q_TU[indice_10min] <= 0):
                     Q_TU[indice_10min] = 0
@@ -358,7 +341,7 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
 
     Q_theoretical_cumulated = calculate_total_energy_demand(Q_TU)
     
-    # print('❂ Energy consumption over a year for the space heating =', Q_theoretical_cumulated, 'MWh\n')
+    # print('❂ Energy consumption over n_days for the space heating =', Q_theoretical_cumulated, 'MWh\n') # Once again, the household thermal need, not the electrical consumption
     
     return Q_TU
 
@@ -490,9 +473,9 @@ def calculate_total_energy_demand(Q_10min_theoretical):
     for b in range (0,len(Q_10min_theoretical)):
         Q_theoretical_cumulated+= Q_10min_theoretical[b]
         
-    Q_theoretical_cumulated = Q_theoretical_cumulated/(1000*6)  #car toutes les 10min et en kWh
+    Q_theoretical_cumulated = Q_theoretical_cumulated/(1000*6)  # Because every 10 minutes and in kWh
 
-    return Q_theoretical_cumulated #EN MWh
+    return Q_theoretical_cumulated # In MWh
 "------------------------------------------------------------------------------------------------------"
 
 
@@ -644,17 +627,3 @@ def extract_shsetting_data(shsetting_data, n_days):
     selected_data = shsetting_data[start_index:end_index]
     
     return selected_data
-"------------------------------------------------------------------------------------------------------"
-"CONVERT kWh of space heating into "
-def calculate_electric_demand(heat_demand, external_temperature):
-    if external_temperature > 10:
-        cop = 4
-    elif 5 < external_temperature <= 10:
-        cop = 3.5
-    elif 0 < external_temperature <= 5:
-        cop = 3
-    else:
-        cop = 2.5
-    
-    electric_demand = heat_demand / cop
-    return electric_demand
