@@ -9,7 +9,7 @@ from datetime import datetime
 space_heating_dir = os.path.dirname(os.path.realpath(__file__)) # Find the path to the 'Space_heating.py' file
 
 # Create an absolute path to the Excel file 'Meteo2022_Liege.xlsx'
-meteo_path = os.path.join(space_heating_dir, 'Meteo2022_Liege.xlsx')
+meteo_path = os.path.join(space_heating_dir, 'database\Meteo2022_Liege.xlsx')
 
 # import xlsxwriter
 from scipy.integrate import solve_ivp
