@@ -350,33 +350,33 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
 "------------------------------------------------------------------------------------------------------"
 "FUNCTION THAT GIVES A HOUSE AND ITS GEOMETRY"
 def house_type():
-    # Listes de données ajustées
+    # The household may have been built during one of these time periods.
     list_built_year = ['70-80', '80-2000', '2000-2020', 'after 2020']
     list_areas = {
-        1: [90, 100, 110, 120, 130, 140, 150], # Maisons de plain-pied (1 étage)
-        2: [60, 70, 80, 90, 100, 110],         # Maisons à 2 étages
-        3: [50, 60, 70, 80, 90]                # Maisons à 3 étages
+        1: [90, 100, 110, 120, 130, 140, 150], # Single-story houses (1 floor)
+        2: [60, 70, 80, 90, 100, 110],         # Two-story houses
+        3: [50, 60, 70, 80, 90]                # Three-story houses
     }
     list_heights = {
-        1: 2.5,  # Maisons de plain-pied
-        2: 5,  # Maisons à 2 étages
-        3: 7.5   # Maisons à 3 étages
+        1: 2.5,  # Single-story houses (1 floor)
+        2: 5,    # Two-story houses
+        3: 7.5   # Three-story houses
     }
 
-    # Choisir un nombre d'étages
+    # Selection of a number of floors
     floors = random.choice([1, 2, 3])
     
-    # Sélection aléatoire de la surface et de la hauteur en fonction des étages
+    # Random selection of surface area and height based on the number of floors
     area = random.choice(list_areas[floors])  
     height = list_heights[floors]
     
-    # Sélection aléatoire du PEB
+    # Random selection of the construction year
     built_year = random.choice(list_built_year)
 
-    # Calculs
+    # Calculations
     volume = area * height
     perimeter = 4 * (area ** 0.5)  # assume area to be a square 
-    wall_surface = perimeter * height  # Surface totale des murs
+    wall_surface = perimeter * height  # Total wall surface
     window_surface_north = random.uniform(0.1, 0.2) * wall_surface / 4
     window_surface_south = random.uniform(0.1, 0.3) * wall_surface / 4
     window_surface_east = random.uniform(0.1, 0.3) * wall_surface / 4
@@ -391,8 +391,8 @@ def house_type():
     
     # ASSUMPTION : only the half of the house is heated , thus the house is shorthened by half
     area = area/2
-    perimeter = 4 * (area ** 0.5)  # assume area to be a square 
-    wall_surface = perimeter * height  # Surface totale des murs
+    perimeter = 4 * (area ** 0.5)      # assume area to be a square 
+    wall_surface = perimeter * height  # Total wall surface
     window_surface_north = random.uniform(0.1, 0.2) * wall_surface / 4
     window_surface_south = random.uniform(0.1, 0.3) * wall_surface / 4
     window_surface_east = random.uniform(0.1, 0.3) * wall_surface / 4
