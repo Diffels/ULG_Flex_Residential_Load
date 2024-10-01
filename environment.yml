@@ -12,5 +12,6 @@ dependencies:
     - plotly
     - scipy
     - openpyxl
+    - xarray
 
  
