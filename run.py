@@ -7,8 +7,8 @@ September 2024
 
 # Import required modules
 from load_profiles import simulate
-
+import os
 if __name__ == '__main__':
-    path = r"C:\Users\noedi\OneDrive - Universite de Liege\Ordi - Bureau\Ordi - ULG\Job - Load Shifting\ULG_Flex_Residential_Load\Config.json"
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Config.json")
     simulate(path, disp=True)
     
