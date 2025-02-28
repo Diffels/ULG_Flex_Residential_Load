@@ -2,7 +2,7 @@
     "nb_days": 30,
     "year": 2024,
     "country": "BE",                     
-    "nb_households": 2,                
+    "nb_households": 10,                
     "start_day": 1,
     "flex_mode": null,               
     "flex_rate": 4,
