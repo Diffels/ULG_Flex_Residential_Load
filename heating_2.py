@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import os
@@ -12,24 +11,21 @@ file_path = os.path.dirname(os.path.realpath(__file__))
 # Create an absolute path to the Excel file 'Meteo2022_Liege.xlsx'
 weather_path = os.path.join(file_path, 'database\Meteo2022_Liege.xlsx')
 
-import random
-from dataclasses import dataclass
-
 @dataclass
 class Material:
     """Dataclass to store material properties"""
-    density: float  # kg/m3
-    specific_heat: float  # J/(kg.K)
+    density: float  # rho kg/m3
+    specific_heat: float  # cp J/(kg.K)
     thermal_conductivity: float  # k in W/(m.K)
 
-# Define common materials
+# Define common materials, see: (2024) "ENRG0001-1 : ENERGY CHALLENGE - Building stock modelling" by Castiaux J. et al
 MATERIALS = {
     "air": Material(1.225, 1005, 0.024),
     "polystyrene": Material(55, 1210, 0.042),
     "rock_wool": Material(28, 900, 0.035),
     "liege": Material(120, 1800, 0.039),
     "brick": Material(1920, 835, 0.72),
-    "concrete": Material(2600, 840, 0.6),
+    "concrete": Material(2600, 640, 0.6),
     "reinforced_concrete": Material(3000, 840, 0.6),
 }
 
@@ -176,10 +172,9 @@ def thermal_equations(t, T, house: House, T_set, T_out, P_nom, P_irr):
     C = 0.8
     ICF = 6 # ICF is a coefficient that represents how much the room is filled with stuff (tables, chairs...) compared to an empty room
     PHI = 0.5 # Term that indicates how accessible the capacity is over a day
-    RHO_AIR = 1.225  # kg/m^3
-    CP_AIR= 1005 #J/(kg.Kelvin)
-    M_AIR = house.volume * RHO_AIR
-    #TODO above comments
+    RHO_AIR = MATERIALS['air'].density  # kg/m^3
+    CP_AIR= MATERIALS['air'].specific_heat # J/(kg.Kelvin)
+    M_AIR = house.volume * RHO_AIR # kg
 
     T_in,T_wall,T_roof,T_ground = T
 
@@ -198,11 +193,13 @@ def thermal_equations(t, T, house: House, T_set, T_out, P_nom, P_irr):
             k2 = 0.017  
             k3 = 0.049
             ach = k1 + (k2 * (T_set - T_out_mean)) + (k3 * v_wind_mean)
+            house.thermal_properties.ach = ach
         elif house.year_of_construction == 'after-2020':
             k1 = 0.1
             k2 = 0.011
             k3 = 0.034
             ach = k1 + (k2 * (T_set - T_out_mean)) + (k3 * v_wind_mean)
+            house.thermal_properties.ach = ach
     else:
         ach = house.thermal_properties.ach
 
@@ -244,10 +241,11 @@ def thermal_equations(t, T, house: House, T_set, T_out, P_nom, P_irr):
 
     return [dTin_dt,dTwall_dt,dTroof_dt,dTground_dt]
 
-def simulate_heating_dynamics(house: House, sim_days, T_set_series, T_out_series, P_irr_series, P_nom=8000):
+def simulate_heating_dynamics(house: House, sim_days, T_set_series, T_out_series, P_irr_series, P_nom=8000, csv=False):
     """Simulate heating dynamics over N days, to compute power consumption of HP."""
     C=0.8
     HP = np.zeros(sim_days*144) # ts : 10min
+    P_net = np.zeros(sim_days*144) # ts : 10min
 
     initial_guess = [19, 10, 10, 10] # [T_in, T_wall, T_roof, T_ground]
 
@@ -274,18 +272,41 @@ def simulate_heating_dynamics(house: House, sim_days, T_set_series, T_out_series
             T_wall_start = sol.y[1][0]
             T_wall_end = sol.y[1][-1]
 
+            T_ground_start = sol.y[-1][0]
+            T_ground_end = sol.y[-1][-1]
             
             T_in = (T_in_start+T_in_end)/2
             T_wall = (T_wall_start+T_wall_end)/2
+            T_ground = (T_ground_start+T_ground_end)/2
             
             if(abs(T_set-T_in) <= 0.5):  # If we are close enough to set point temperature
                 HP[ts]= 0
             else: 
                 HP[ts] = (max(min(C*(T_set-T_in)*P_nom,P_nom),0))/1000 # In kW
-            if(HP[ts] <= 0):
-                HP[ts] = 0
-          
-    return HP
+            # if(HP[ts] <= 0):
+            #     HP[ts] = 0
+
+            if csv:
+
+                U_roof = house.thermal_properties.U_roof
+                U_walls = house.thermal_properties.U_walls
+                U_windows = house.thermal_properties.U_windows
+                tot_window_surface = house.tot_window_surface
+                A_roof = house.ground_surface
+                A_walls = house.wall_surface
+                theta = house.thermal_properties.theta
+
+
+                Q_cond_ground = (U_roof / theta) * A_roof * (T_ground - T_in)
+                Q_cond_walls = (U_walls / theta) * A_walls * (T_wall - T_in)
+                Q_cond_windows = U_windows*tot_window_surface*(T_out-T_in)
+                Q_cond = Q_cond_ground+Q_cond_walls+Q_cond_windows
+                Q_infiltration = (house.thermal_properties.ach/6)*house.volume*MATERIALS['air'].density*MATERIALS['air'].specific_heat*(T_in - T_out)/600
+
+                P_net[ts] = P_irr + Q_cond - Q_infiltration
+            
+    
+    return HP, P_net
 
 def irradiation(house: House, weather_path):
 
@@ -311,11 +332,31 @@ def outside_temperature(weather_path):
     return np.repeat(weather['Temperature C'].values, 6) # Each 10 minutes
 
 
-def run_space_heating(t_set_series, sim_days):
+def run_space_heating(t_set_series, sim_days, n_sim, csv=False):
 
-    house = House.generate()
-    T_set_series = t_set_series # 'shsetting_data = family.sh_day', ts=10 min for sim_days 
-    T_out_series = outside_temperature(weather_path) # ts=10min for 1 year
-    P_irr_series = irradiation(house, weather_path) # ts=10min for 1 year
+    results = np.zeros(sim_days*144)
 
-    return simulate_heating_dynamics(house, sim_days, T_set_series, T_out_series, P_irr_series, P_nom=8000)
+    for sim in range(n_sim):
+        house = House.generate()
+        T_set_series = t_set_series # 'shsetting_data = family.sh_day', ts=10 min for sim_days 
+        T_out_series = outside_temperature(weather_path) # ts=10min for 1 year
+        P_irr_series = irradiation(house, weather_path) # ts=10min for 1 year
+        HP, P_net = simulate_heating_dynamics(house, sim_days, T_set_series, T_out_series, P_irr_series, P_nom=8000, csv=csv) 
+        results += HP
+
+    if n_sim <= 1 and csv:
+        year = house.year_of_construction
+        vol = str(round(house.volume))
+        n_floors = str(house.num_floors)
+
+        ICF = 6
+        RHO_AIR = MATERIALS['air'].density  # kg/m^3
+        CP_AIR= MATERIALS['air'].specific_heat # J/(kg.Kelvin)
+        M_AIR = house.volume * RHO_AIR # kg
+        eff_K_J = np.repeat(1/(M_AIR*CP_AIR*ICF), len(HP))
+
+        df = pd.DataFrame({'HP dynamic modelling [kW]': results, 'T_setpoint [C°]': T_set_series[1:], 'T_out [C°]': T_out_series[:sim_days*144], 'P net=(P_irr+Q_cond-Q_inf) [kW]': P_net, 'Efficiency [K/J]': eff_K_J})
+
+        df.to_csv(f"{file_path}\{year}_house_{n_floors}_floors_{vol}m3_for_{sim_days}_days.csv", index=False)
+
+    return results
