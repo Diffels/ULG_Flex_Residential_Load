@@ -22,7 +22,7 @@ def flexibility_window(app_profile, occ_m, flex_type, year = 2015, flexibility_r
     occ_min = from_10_to_1min_basis(occ_m) 
     
     flex_window = app_profile.copy()
-    flex_window[:] = 0
+    flex_window[:] = 0 
     
     if flex_type in "Based on occupation " : 
         for app in app_profile.columns:
@@ -77,7 +77,10 @@ def flexibility_window(app_profile, occ_m, flex_type, year = 2015, flexibility_r
                     start_indices = working_start(working_indices)#on récup tous les indices de départ de programme
                     for starting in start_indices : 
                         low_indice,upper_indice = hourly_window(len(occ_min), starting,int(flexibility_rate))#on récupére l'intervalle d'occupation pour chaque départ de programme
-                        flex_window.loc[low_indice:upper_indice, app] = [1] * (upper_indice- low_indice+1) #Toutes les valeurs dans la plage de flexibilité sont set à 1
+                        if upper_indice == len(flex_window):
+                            flex_window.loc[low_indice:upper_indice, app] = [1] * (upper_indice- low_indice) #Toutes les valeurs dans la plage de flexibilité sont set à 1
+                        else : 
+                            flex_window.loc[low_indice:upper_indice, app] = [1] * (upper_indice- low_indice+1) #Toutes les valeurs dans la plage de flexibilité sont set à 1
     return flex_window
 
 

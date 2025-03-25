@@ -33,6 +33,9 @@ def make_demand_plot(idx,data,PV = None,title='Consumption', NB_Scenario = 1):
     '''
     
     fig = go.Figure()
+    Base = list(set(data.columns) & set(StaticLoad))
+    data["Base Load"] = data[Base].sum(axis=1)
+    data = data.drop(columns=Base)
     cols = data.columns.tolist()
     if 'BatteryGeneration' in cols:
         cols.remove('BatteryGeneration')
@@ -68,8 +71,8 @@ def make_demand_plot(idx,data,PV = None,title='Consumption', NB_Scenario = 1):
            ))
 
     fig.update_layout(title = title,
-                      xaxis_title = 'Dates',
-                      yaxis_title = 'Puissance (W)'
+                      xaxis_title = r'Dates',
+                      yaxis_title = r'Power [kW]'
                       )
     fig.show()
     return fig

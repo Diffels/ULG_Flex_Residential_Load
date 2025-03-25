@@ -45,6 +45,7 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
     
     A_roof = house['Ground surface (m^2)']
     A_ground = A_roof
+    x = random.random()
 
     if house['Year of construction'] == '70-80' :  # Building constructed in the seventies
         e_beton = 0.3
@@ -92,9 +93,13 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
     
     P_irradiation = irradiation(A_windows_N,A_windows_E,A_windows_S,A_windows_W, sim_start_day, sim_ndays) # Total irradiations that the buildings receives  
     
-    T_hours = temperature_tri(sim_start_day, sim_ndays)
-    T_10minutes = [temp for temp in T_hours for _ in range(6)]  # Duplicate each cell of T_hours by 6
+    #T_hours = temperature_tri(sim_start_day, sim_ndays)
 
+
+    temp = pd.read_excel(r'C:\Master3\TFE\ULG-Flex-Residential-Load-3phases copy\database\Meteo2022_Liege.xlsx')
+    temp = temp.head(sim_ndays*24)
+    T_hours = temp['Temperature C'].tolist()
+    T_10minutes = [temp for temp in T_hours for _ in range(6)]  # Duplicate each cell of T_hours by 6
     Q_TU = np.zeros(sim_ndays*24*6)
     all_T_in = np.zeros(sim_ndays*24*6)
     all_T_wall = np.zeros(sim_ndays*24*6)
@@ -104,8 +109,11 @@ def theoretical_model_dynamic(shsetting_data, sim_ndays, sim_start_day):
     for day in range(sim_ndays):
         for hour in range(24):  
             for p in range(6):
-
                 T_out = T_10minutes[indice_10min]
+                if T_out > 19:
+                    Q_TU[indice_10min] = 0
+                    indice_10min +=1
+                    continue
 
                 P_in_addition = P_irradiation[indice_10min]
                 
@@ -373,6 +381,7 @@ def house_type():
     # Random selection of the construction year
     built_year = random.choice(list_built_year)
 
+
     # Calculations
     volume = area * height
     perimeter = 4 * (area ** 0.5)  # assume area to be a square 
@@ -382,11 +391,11 @@ def house_type():
     window_surface_east = random.uniform(0.1, 0.3) * wall_surface / 4
     window_surface_west = random.uniform(0.1, 0.3) * wall_surface / 4
 
-    print('House generated and its caracteristics : ')
+    """print('House generated and its caracteristics : ')
     print(f" - Year of construction: {built_year}")
     print(f" - Ground surface (m^2): {area}")
     print(f" - Number of floors: {floors}")
-    print(f" - Volume (m^3): {volume}")
+    print(f" - Volume (m^3): {volume}")"""
 
     
     # ASSUMPTION : only the half of the house is heated , thus the house is shorthened by half
@@ -412,8 +421,12 @@ def house_type():
 
 "------------------------------------------------------------------------------------------------------"
 def irradiation(A_N,A_E,A_S,A_W, start_day, n_days):
+    meteo = pd.read_excel(r'C:\Master3\TFE\ULG-Flex-Residential-Load-3phases copy\database\Meteo2022_Liege.xlsx')
+    irr_n = meteo['I_north W/m²'].tolist()
+    irr_w = meteo['I_west W/m²'].tolist()
+    irr_e = meteo['I_east W/m²'].tolist()
+    irr_s = meteo['I_south W/m²'].tolist()
     
-    irr_n,irr_e,irr_s,irr_w = irradiation_meteo(start_day, n_days) 
     irr_n_duplicate = [elem for elem in irr_n for _ in range(6)]
     irr_e_duplicate = [elem for elem in irr_e for _ in range(6)]
     irr_s_duplicate = [elem for elem in irr_s for _ in range(6)]
@@ -530,7 +543,7 @@ def temperature_tri(start_day, n_days) :
             # Vérifier si on a extrait assez d'heures
             if len(Temp) >= n_days * 24:
                 break
-
+    print(t)
     return np.array(Temp)
 "------------------------------------------------------------------------------------------------------"
 
