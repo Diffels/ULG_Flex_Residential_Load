@@ -3,7 +3,7 @@
     "year": 2024,
     "country": "BE",                     
     "nb_households": 1,                
-    "start_day": 1,
+    "start_day": 65,
     "flex_mode": null,               
     "flex_rate": 4,
     "plot":true,
@@ -16,7 +16,7 @@
         "WasherDryer": 0.25
     },               
 
-    "EV_presence": 0.4,          
+    "EV_presence": 1,          
     "prob_EV_size": [0.3, 0.5, 0.2],
     "prob_EV_usage": [0.2, 0.5, 0.3],
     "prob_EV_charger_power": [0.25, 0.4, 0.25, 0.1], 

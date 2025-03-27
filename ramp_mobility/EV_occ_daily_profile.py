@@ -111,7 +111,7 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
                     tot_time_left += duration
                     leave = None
             
-    # --- Main Loop that iterates over the day ---
+    # --- Main Loop that iterates over the day ---)
     
         fully_charged=False
         for i in range(1, len(occupancy)):

@@ -68,7 +68,8 @@ class House:
         heights = {1: 2.5, 2: 5, 3: 7.5}  # Heights by floors
         
         num_floors = random.choice([1, 2, 3])
-        ground_surface = random.choice(areas[num_floors])
+        ground_surface = random.choice(areas[num_floors])/2  # Assume half of the area is used
+        # print("Ground surface: ", ground_surface*2, "[m2]")
         ceiling_height = heights[num_floors]
         
         # Derived properties
@@ -86,14 +87,14 @@ class House:
         year_of_construction = random.choice(construction_periods)
         thermal_properties = calculate_thermal_properties(year_of_construction)
 
-        print(f"-- Generated House Details --")
+        '''print(f"-- Generated House Details --")
         print(f"Year of Construction: {year_of_construction}")
         print(f"Number of Floors: {num_floors}")
         print(f"Ground Surface: {ground_surface} m2")
         print(f"Ceiling Height: {ceiling_height} m")
         print(f"Total Volume: {volume} m3")
         print(f"Wall Surface: {wall_surface} m2")
-        print(f"Windows Surface (tot): {window_tot} m2")
+        print(f"Windows Surface (tot): {window_tot} m2")'''
         
         return House(
             year_of_construction=year_of_construction,
@@ -246,10 +247,14 @@ def simulate_heating_dynamics(house: House, sim_days, T_set_series, T_out_series
     C=0.8
     HP = np.zeros(sim_days*144) # ts : 10min
     P_net = np.zeros(sim_days*144) # ts : 10min
+    T_in_series = np.zeros(sim_days*144) # ts : 10min
+
+    prob_heat_pump_flex = random.random()
 
     initial_guess = [19, 10, 10, 10] # [T_in, T_wall, T_roof, T_ground]
 
     for day in range(sim_days):
+        
         for i in range(144): # 144 x 10 minutes in one day
 
             ts = day*144+i
@@ -258,9 +263,18 @@ def simulate_heating_dynamics(house: House, sim_days, T_set_series, T_out_series
             T_out = T_out_series[ts]  # Outside temperature 
             P_irr = P_irr_series[ts]  # Irradiation
 
+            #if T_out is larger than 19, heat pump do not work
+            if T_out > 20:
+                HP[ts]=0
+                continue
+            # Heat pump has a chance to not work between 11 p.m. and 6a.m.
+            if prob_heat_pump_flex < 0.5 and (i < 6*6 or i >=23*6):
+                HP[ts]=0
+                continue
+
             sol = solve_ivp(
                 lambda t, T: thermal_equations(t, T, house, T_set, T_out=T_out, P_nom=P_nom, P_irr=P_irr),
-                [0, 600],  # 10min x 60 sec
+                [0, 10],  # each min
                 initial_guess
             )
             
@@ -304,9 +318,9 @@ def simulate_heating_dynamics(house: House, sim_days, T_set_series, T_out_series
                 Q_infiltration = (house.thermal_properties.ach/6)*house.volume*MATERIALS['air'].density*MATERIALS['air'].specific_heat*(T_in - T_out)/600
 
                 P_net[ts] = P_irr + Q_cond - Q_infiltration
+                T_in_series[ts] = T_in
             
-    
-    return HP, P_net
+    return HP, P_net, T_in_series
 
 def irradiation(house: House, weather_path):
 
@@ -341,8 +355,15 @@ def run_space_heating(t_set_series, sim_days, n_sim, csv=False):
         T_set_series = t_set_series # 'shsetting_data = family.sh_day', ts=10 min for sim_days 
         T_out_series = outside_temperature(weather_path) # ts=10min for 1 year
         P_irr_series = irradiation(house, weather_path) # ts=10min for 1 year
-        HP, P_net = simulate_heating_dynamics(house, sim_days, T_set_series, T_out_series, P_irr_series, P_nom=8000, csv=csv) 
+        HP, P_net, T_in = simulate_heating_dynamics(house, sim_days, T_set_series, T_out_series, P_irr_series, P_nom=8000, csv=csv) 
         results += HP
+            
+        power = results # ["HP dynamic modelling [kW]"]
+        total_power = power.sum()/4 # kWe (COP = 4)
+        total_consumption = total_power / 6 # 6 is the number of time steps per hour
+
+        print("Price:", total_consumption*0.3, "€"," for ", sim_days, " days.") # 30 cts per kWh
+        print("For house:", house.year_of_construction, house.volume, "m3")
 
     if n_sim <= 1 and csv:
         year = house.year_of_construction
@@ -355,8 +376,10 @@ def run_space_heating(t_set_series, sim_days, n_sim, csv=False):
         M_AIR = house.volume * RHO_AIR # kg
         eff_K_J = np.repeat(1/(M_AIR*CP_AIR*ICF), len(HP))
 
-        df = pd.DataFrame({'HP dynamic modelling [kW]': results, 'T_setpoint [C°]': T_set_series[1:], 'T_out [C°]': T_out_series[:sim_days*144], 'P net=(P_irr+Q_cond-Q_inf) [kW]': P_net, 'Efficiency [K/J]': eff_K_J})
+        df = pd.DataFrame({'HP dynamic modelling [kW]': results, 'T_in [C°]': T_in, 'T_setpoint [C°]': T_set_series[1:], 'T_out [C°]': T_out_series[:sim_days*144], 'P net=(P_irr+Q_cond-Q_inf) [W]': P_net, 'Efficiency [K/J]': eff_K_J})
 
         df.to_csv(f"{file_path}\{year}_house_{n_floors}_floors_{vol}m3_for_{sim_days}_days.csv", index=False)
+
+
 
     return results
