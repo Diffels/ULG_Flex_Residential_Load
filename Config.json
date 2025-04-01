@@ -1,8 +1,8 @@
 {  
-    "nb_days": 7,
+    "nb_days": 30,
     "year": 2024,
     "country": "BE",                     
-    "nb_households": 5,                
+    "nb_households": 1,                
     "start_day": 65,
     "flex_mode": true,               
     "flex_rate": 4,
@@ -19,7 +19,7 @@
     "HotWater": true,
     "HotWater_max_power": 3,
 
-    "EV_presence": 1,          
+    "EV_presence": true,          
     "prob_EV_size": [0.3, 0.5, 0.2],
     "prob_EV_usage": [0.2, 0.5, 0.3],
     "prob_EV_charger_power": [0.25, 0.4, 0.25, 0.1], 
