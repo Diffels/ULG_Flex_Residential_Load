@@ -27,7 +27,7 @@ def prob_charge_notHome_fun(E_journey, E_leaving):
     elif r < 0.05: # Short journeys do not require charge.
         P = 0
     else: 
-        P = 3*r
+        P = r
     #print(P)
     return P
     
@@ -170,7 +170,8 @@ def EV_occ_daily_profile(EV_cons: np.ndarray[Any, np.dtype[np.float_]], full_occ
                     # Update SOC with discharge from previous journey
                     SOC_i = SOC_last - E_spent/battery_cap
                     if SOC_i < SOC_min*(1-tol_batt_lim):
-                        raise ValueError(f"Error in daily_EV_profile.py: SOC at {i} [min] is {SOC_i} [-] which is lower than SOC_min ({SOC_min} [-]).") 
+                        SOC_i = SOC_min*(1-tol_batt_lim)
+                        #raise ValueError(f"Error in daily_EV_profile.py: SOC at {i} [min] is {SOC_i} [-] which is lower than SOC_min ({SOC_min} [-]).") 
                     charging_profile[i]=1
                 else: # Event charge: EV charge at nominal power until SOC_max
                     # Update SOC with charge from home charging station

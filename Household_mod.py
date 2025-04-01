@@ -203,7 +203,6 @@ class Household_mod(Household):
         # and store
         self.sh_settings = sh_settings
         # print(' - Average comfort setting is %s Celsius' % str(round(np.average(sh_settings['dayzone']),2)))
-        
         self.variables.update({'sh_day': 'Space heating set-point temperature for day-zone in degrees Celsius.',
                                 'sh_bath': 'Space heating set-point temperature for bathroom in degrees Celsius.',
                                 'sh_night': 'Space heating set-point temperature for night-zone in degrees Celsius.'})
@@ -380,6 +379,7 @@ class Household_mod(Household):
         self.QCon = self.QCon[start:stop+1]
         self.mDHW = self.mDHW[start:stop+1]
         appliances_cons = self.app_consumption
+        
         new_appliance = dict()
         for key,value in appliances_cons.items():
             new_appliance.update({key : value[start:stop+1]})
@@ -395,7 +395,6 @@ class Household_mod(Household):
         del self.r_receptacles
         del self.r_lighting
         del self.r_flows
-
         #######################################################################
         # and end
         return None
