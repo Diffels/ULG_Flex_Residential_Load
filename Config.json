@@ -1,6 +1,11 @@
 {  
+<<<<<<< Updated upstream
     "nb_days":365,
     "year": 2022,
+=======
+    "nb_days": 7,
+    "year": 2024,
+>>>>>>> Stashed changes
     "country": "BE",                     
     "nb_households": 1,                
     "start_day": 65,
