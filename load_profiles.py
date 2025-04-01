@@ -79,7 +79,7 @@ def get_profiles(config, dwelling_compo):
             # Running EV module
             load_profile, n_charge_not_home =EV_run(occupancy,config)
             EV_profile = pd.DataFrame({'EVCharging':load_profile})
-            EV_flex = pd.DataFrame({'EVCharging':load_profile, 'Occupancy':occupancy})
+            # EV_flex = pd.DataFrame({'EVCharging':load_profile, 'Occupancy':occupancy})
 
             if 'EVCharging' not in df.columns:
                 df['EVCharging'] =  EV_profile*1000

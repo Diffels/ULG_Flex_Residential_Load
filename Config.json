@@ -1,45 +1,34 @@
 {  
-    "nb_days": 7,
+    "nb_days": 30,
     "year": 2024,
     "country": "BE",                     
-    "nb_households": 5,                
+    "nb_households": 1,                
     "start_day": 65,
     "flex_mode": true,               
     "flex_rate": 4,
-    "plot": false,
-    "plot_ts": 15,                         
-    "three_phases" : false,     
-
+    "plot":true,
+    "plot_ts": 10,                         
+               
     "appliances": {
-        "WashingMachine": 0.9,
-        "TumbleDryer": 0.58,
-        "DishWasher": 0.61,
-        "WasherDryer": 0.14
+        "WashingMachine": 0.65,
+        "TumbleDryer": 0.6,
+        "DishWasher": 0.6,
+        "WasherDryer": 0.25
     },               
 
     "HotWater": true,
     "HotWater_max_power": 3,
 
-    "EV_presence": 1,          
-    "prob_EV_size": [0.2, 0.6, 0.2],
+    "EV_presence": true,          
+    "prob_EV_size": [0.3, 0.5, 0.2],
     "prob_EV_usage": [0.2, 0.5, 0.3],
-    "prob_EV_charger_power": [0.4, 0.4, 0.15, 0.05], 
+    "prob_EV_charger_power": [0.25, 0.4, 0.25, 0.1], 
     "EV_km_per_year": 0,
     
-    "dwelling_nb_compo":3,
+    "dwelling_nb_compo":4,
     "dwelling_member1":	"Random",
     "dwelling_member2":	"Random",
     "dwelling_member3":	"Random",
     "dwelling_member4":	"Random",
-    "dwelling_member5":	"Random",
-
-    "PAC_presence" : true,
-    "Hot_Water_Boiler" : 1,
-    "Hot_water_Boiler_power" : 3,
-
-    "Write Excel": false,
-    "Write Tot csv" : false,
-    "CSV folder" :"C:\\Master3\\TFE\\ULG-Flex-Residential-Load-3phases copy\\consumption_with_heating",
-    "CSV file": "C:\\Master3\\TFE\\ULG-Flex-Residential-Load-3phases copy\\ThomasCIRED\\ResultsFlex_45H_fr4.csv",
-    "Excel File": "C:\\Master3\\TFE\\ULG-Flex-Residential-Load-3phases copy\\All_consumption\\Results.xlsx"
+    "dwelling_member5":	"Random"
 }
