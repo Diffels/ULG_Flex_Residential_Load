@@ -16,9 +16,8 @@ defaultcolors = {'Base Load':'#7fe5ca',
                  'DomesticHotWater':'#8be9f9',
                  'EVCharging':'#ffcbff',
                  'BatteryConsumption':'#b0b6fc',
-                 'WashingMachine': '#ffffbe', 
-                 'Hot Water' : '#b0b6fc',
-                 'mult':'#7fe5ca'}
+                 'HotWater':'#048b9a',
+                 'WashingMachine': '#ffffbe'}
 
 special_appliances = ['DishWasher','WasherDryer','TumbleDryer','WashingMachine', 'EVCharging']
 

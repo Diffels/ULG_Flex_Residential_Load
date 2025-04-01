@@ -346,26 +346,26 @@ def outside_temperature(weather_path):
     return np.repeat(weather['Temperature C'].values, 6) # Each 10 minutes
 
 
-def run_space_heating(t_set_series, sim_days, n_sim, csv=False):
+def run_space_heating(t_set_series, sim_days, csv=False):
 
     results = np.zeros(sim_days*144)
 
-    for sim in range(n_sim):
-        house = House.generate()
-        T_set_series = t_set_series # 'shsetting_data = family.sh_day', ts=10 min for sim_days 
-        T_out_series = outside_temperature(weather_path) # ts=10min for 1 year
-        P_irr_series = irradiation(house, weather_path) # ts=10min for 1 year
-        HP, P_net, T_in = simulate_heating_dynamics(house, sim_days, T_set_series, T_out_series, P_irr_series, P_nom=8000, csv=csv) 
-        results += HP
-            
-        power = results # ["HP dynamic modelling [kW]"]
-        total_power = power.sum()/4 # kWe (COP = 4)
-        total_consumption = total_power / 6 # 6 is the number of time steps per hour
+    house = House.generate()
+    T_set_series = t_set_series # 'shsetting_data = family.sh_day', ts=10 min for sim_days 
+    T_out_series = outside_temperature(weather_path) # ts=10min for 1 year
+    P_irr_series = irradiation(house, weather_path) # ts=10min for 1 year
+    HP, P_net, T_in = simulate_heating_dynamics(house, sim_days, T_set_series, T_out_series, P_irr_series, P_nom=8000, csv=csv) 
+    results += HP
+        
+    power = results # ["HP dynamic modelling [kW]"]
+    total_power = power.sum()/4 # kWe (COP = 4)
+    total_consumption = total_power / 6 # 6 is the number of time steps per hour
 
-        print("Price:", total_consumption*0.3, "€"," for ", sim_days, " days.") # 30 cts per kWh
-        print("For house:", house.year_of_construction, house.volume, "m3")
+    # print("Price:", total_consumption*0.3, "€"," for ", sim_days, " days.") # 30 cts per kWh
+    print("House:", house.year_of_construction, house.volume, "m3")
 
-    if n_sim <= 1 and csv:
+    if csv:
+        # Save results to CSV file
         year = house.year_of_construction
         vol = str(round(house.volume))
         n_floors = str(house.num_floors)

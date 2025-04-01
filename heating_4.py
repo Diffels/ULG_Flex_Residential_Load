@@ -252,20 +252,19 @@ def run_space_heating(T_set_series, sim_days, n_sim, csv=False):
 
     comfort_study(sim_days, T_set_series)
 
-    for sim in range(n_sim):
-        house = House.generate()
-        T_out_series = outside_temperature(weather_path)  # External temperature series
-        P_irr_series = irradiation(house, weather_path)  # Solar irradiation series
+    house = House.generate()
+    T_out_series = outside_temperature(weather_path)  # External temperature series
+    P_irr_series = irradiation(house, weather_path)  # Solar irradiation series
 
-        # Simulate heating system 
-        P_HP_series, T = simulate_heating_dynamics(house, sim_days, T_set_series, T_out_series, P_irr_series, P_nom=8000, comfort=0.5)
+    # Simulate heating system 
+    P_HP_series, T = simulate_heating_dynamics(house, sim_days, T_set_series, T_out_series, P_irr_series, P_nom=8000, comfort=0.5)
 
-        results += P_HP_series/1e3  # Convert to kW
+    results += P_HP_series/1e3  # Convert to kW
 
     total_power = results.sum()/4 # kWe (COP = 4)
     total_consumption = total_power / 6 # 6 is the number of time steps per hour
 
-    print("Price:", total_consumption*0.3, "€"," for ", sim_days, " days.") # 30 cts per kWh
+    # print("Price:", total_consumption*0.3, "€"," for ", sim_days, " days.") # 30 cts per kWh
     
     return results
 
