@@ -72,7 +72,7 @@ def make_demand_plot(idx,data,PV = None,title='Consumption', NB_Scenario = 1):
 
     fig.update_layout(title = title,
                       xaxis_title = r'Dates',
-                      yaxis_title = r'Power [kW]'
+                      yaxis_title = r'Power [W]'
                       )
     fig.show()
     return fig

@@ -244,13 +244,13 @@ def simulate_heating_dynamics(house, sim_days, T_set_series, T_out_series, P_irr
 
 
 
-def run_space_heating(T_set_series, sim_days, n_sim, csv=False):
+def run_space_heating(T_set_series, sim_days):
     """Run multiple simulations and compute average results for indoor temperature and HP power."""
     
     # results_T = np.zeros(sim_days * 144)
     results = np.zeros(sim_days * 144)
 
-    comfort_study(sim_days, T_set_series)
+    # comfort_study(sim_days, T_set_series)
 
     house = House.generate()
     T_out_series = outside_temperature(weather_path)  # External temperature series
@@ -264,7 +264,7 @@ def run_space_heating(T_set_series, sim_days, n_sim, csv=False):
     total_power = results.sum()/4 # kWe (COP = 4)
     total_consumption = total_power / 6 # 6 is the number of time steps per hour
 
-    # print("Price:", total_consumption*0.3, "€"," for ", sim_days, " days.") # 30 cts per kWh
+    print("Price:", total_consumption*0.3, "€"," for ", sim_days, " days.") # 30 cts per kWh
     
     return results
 
