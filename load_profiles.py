@@ -13,7 +13,7 @@ from Household_mod import Household_mod
 from plots import make_demand_plot
 from Flexibility import flexibility_window
 from ramp_mobility.EV_run import EV_run
-from heating_3 import run_space_heating
+from heating_4 import run_space_heating
 from utils import index_to_datetime, occ_reshape
 from Hot_water import hot_water_elec_consumption
 import time
@@ -149,6 +149,8 @@ def simulate(file_path, disp=True):
         raise ValueError(f"Probabilities associated to the EV usage are incorrect. {config['prob_EV_usage']}")
     if sum(config['prob_EV_charger_power']) != 1: 
         raise ValueError(f"Probabilities associated to the charger powers are incorrect. {config['prob_EV_charger_power']}")
+    if (config['nb_days'] + config['start_day'] > 365) or (config['nb_days'] <= 0): 
+        raise ValueError(f"Declaration of time horizon incorrect: {config['nb_days']} days to simulate, starting from {config['start_day']}th day of the year.")
     
     loads, times, dataset = get_profiles(config, dwelling_compo)
 
